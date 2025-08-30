@@ -19,8 +19,10 @@ class Orders extends Authenticatable
      */
     protected $fillable = [
 		"user_id",
-		"order_id",
         "invoice_id",
+        "hotel_id",
+        "room_id",
+        "room_price_id",
         "rooms",
         "adults",
         "childs",
@@ -38,40 +40,17 @@ class Orders extends Authenticatable
         "billing_city",
         "billing_state",
         "payment_status",
-        "check_in",
-        "check_out",
+        "check_in_date",
+        "check_out_date",
         "order_platform",
         "payment_method_type",
 		"other_details",
+        "extra_mattress",
+        "extra_mattress_price",
+        "in_no"
     ];
 
-    protected $UpdatableFields = [
-		"user_id",
-		"order_id",
-        "invoice_id",
-        "rooms",
-        "adults",
-        "childs",
-        "txn_id",
-        "sub_total",
-        "discount",
-        "convenience",
-        "coupon_code",
-		"cod_amount",
-        "grand_total",
-        "billing_name",
-        "billing_email",
-        "billing_phone",
-        "billing_address",
-        "billing_city",
-        "billing_state",
-        "payment_status",
-        "check_in",
-        "check_out",
-        "order_platform",
-        "payment_method_type",
-		"other_details",
-    ];
+    protected $UpdatableFields = [ ];
 
     /**
      * The attributes that should be hidden for serialization.

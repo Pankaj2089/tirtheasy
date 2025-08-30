@@ -65,6 +65,7 @@ class APIController extends Controller{
     private static $RoomPrices;
     private static $UserModel;
     private static $UserAccessCode;
+    private static $Orders;
     public function __construct(){
         self::$Banners = new Banners();
         self::$Promotions = new Promotions();
@@ -88,6 +89,7 @@ class APIController extends Controller{
         self::$RoomPrices = new RoomPrices();
         self::$UserModel = new AdminUser();
         self::$UserAccessCode = new UserAccessCode();
+        self::$Orders = new Orders();
         self::$rootURL = "http://localhost/tirtheasy/";
     }
 
@@ -615,13 +617,46 @@ class APIController extends Controller{
                 }
                 $record->additional_images = $additionalImages;
 
+                $roomPriceIDs = [];
                 # get prices
-                $record->room_prices = self::$RoomPrices->where('status', 1)->where('room_id',$record->id)->orderBy('price', 'ASC')->get();
+                if($request->input('start_date') && !empty($request->input('start_date'))){
+                 // check room already booked
+                    $checkInDate = date('Y-m-d',strtotime($request->input('start_date')));
+                    $checkOutDate = date('Y-m-d',strtotime($request->input('end_date')));;
+                    $orderRows =self::$Orders
+                    ->where('room_id', $record->id)
+                    ->where(function ($q) use ($checkInDate, $checkOutDate) {
+                        $q->whereBetween('check_in_date', [$checkInDate, $checkOutDate])
+                        ->orWhereBetween('check_out_date', [$checkInDate, $checkOutDate])
+                        ->orWhere(function ($q2) use ($checkInDate, $checkOutDate) {
+                            $q2->where('check_in_date', '<=', $checkInDate)
+                                ->where('check_out_date', '>=', $checkOutDate);
+                        });
+                    })->get();
+                    if(count($orderRows) > 0){
+                        foreach($orderRows as $orderRow){
+                            $roomPriceIDs[] = $orderRow->room_price_id;
+                        }
+                    }
+
+                }
+                    
+                $roomPricesQuery = self::$RoomPrices->where('status', 1)
+                ->where('room_id',$record->id);
+                // if(count($roomIDs) > 0){
+                //     $roomPricesQuery->whereNotIn('id',$roomIDs);
+                // }
+
+                $roomPrices =  $roomPricesQuery->orderBy('price', 'ASC')->get();
+
+                $record->room_prices = $roomPrices;
                 if(count($record->room_prices) > 0){
                     foreach($record->room_prices as $price){
                         if(isset($price->amenities) && !empty($price->amenities)){
                             $price->amenities = json_decode($price->amenities);
                         }
+
+                        $price->room_available = !in_array($price->id, $roomPriceIDs);
                     }
                 }
 
@@ -668,22 +703,155 @@ class APIController extends Controller{
 	}
 
     #create order
-    public function createOrder(Request $request)
-    {
-        $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
+    public function createOrder(Request $request){
 
-        $order = $api->order->create([
-            'receipt' => 'rcptid_' . time(),
-            'amount' => $request->amount * 100, // amount in paise
-            'currency' => 'INR',
-        ]);
+        if($request->input()){
+            $validator = Validator::make($request->all(), [
+				'adults' => 'required', 
+				'rooms' => 'required', 
+				'end_date' => 'required', 
+				'start_date' => 'required', 
+				'end_date' => 'required', 
+			], [
+                'adults.required' => 'Please select no. of audlt(s).',
+				'rooms.required' => 'Please select no. of room(s).',
+                'start_date.required' => 'Please select check-in date.',
+				'end_date.required' => 'Please select check-out date.'
+			]);
+            if($validator->fails()){
+                $errors = $validator->errors();
+                if($errors->first('adults')){
+                    return response()->json(['success'=>false,'message' => $errors->first('adults')],200);
+                }
+                if($errors->first('rooms')){
+                    return response()->json(['success'=>false,'message' => $errors->first('rooms')],200);
+                }
+                if($errors->first('start_date')){
+                    return response()->json(['success'=>false,'message' => $errors->first('start_date')],200);
+                }
+                if($errors->first('end_date')){
+                    return response()->json(['success'=>false,'message' => $errors->first('end_date')],200);
+                }
+                
+            } else {
+                // check room 
+                $roomRow = self::$Rooms->where('status', 1)->where('id', $request->input('room_id'))->orderBy('price', 'ASC')->first();
+                if(isset($roomRow->id)){
+                    // check room price
+                    $roomPriceRow = self::$RoomPrices->where('status', 1)->where('room_id',$roomRow->id)->where('id',$request->input('room_price_id'))->orderBy('price', 'ASC')->first();
+                    if(isset($roomRow->id)){
+                        // check room already booked
+                        $checkInDate = date('Y-m-d',strtotime($request->input('start_date')));
+                        $checkOutDate = date('Y-m-d',strtotime($request->input('end_date')));;
+                        
+                        $orderRow =self::$Orders
+                        ->where('room_id', $roomRow->id)
+                        ->where('room_price_id', $request->input('room_price_id'))
+                        ->where(function ($q) use ($checkInDate, $checkOutDate) {
+                            $q->whereBetween('check_in_date', [$checkInDate, $checkOutDate])
+                            ->orWhereBetween('check_out_date', [$checkInDate, $checkOutDate])
+                            ->orWhere(function ($q2) use ($checkInDate, $checkOutDate) {
+                                $q2->where('check_in_date', '<=', $checkInDate)
+                                    ->where('check_out_date', '>=', $checkOutDate);
+                            });
+                        })
+                        ->exists();
 
-        return response()->json([
-            'order_id' => $order['id'],
-            'amount' => $order['amount'],
-            'currency' => $order['currency'],
-            'key' => env('RAZORPAY_KEY'),
-        ]);
+                        if(!$orderRow){
+
+                            $userExist = self::$UserModel->where(array('mobile' => $request->user_mobile))->first();	
+                            if(isset($userExist->id)){
+                                $this->UpdateUser($request,$userExist->id);
+                                $userID = $userExist->id;
+                            }else{
+                                return response()->json(['success'=>false,'message' => 'Please login with your account.'],200);
+                            }
+
+                            $lastOrder = self::$Orders->select('in_no','id')->orderBy('id','DESC')->first();
+                            $inc_no = 1;
+                            if(isset($lastOrder->id)){
+                                $inc_no = $lastOrder->in_no+1;
+                            }
+
+                            // set order data
+                            $inc_no = str_pad($inc_no, 3, "0", STR_PAD_LEFT);
+
+                            // get hotel record
+                            $hotelRow= self::$Hotels->where('status', 1)->where('id',$roomRow->hotel_id)->first();
+
+                            $roomDetails['hotel_details'] = $hotelRow->toArray();
+                            $roomDetails['room_details'] = $roomRow->toArray();
+
+                            $otherDetals = json_encode(['userDetails' => $request->input('user_data'), 'roomDetails'=> $roomDetails]);
+                            
+                            $extraMattressPrice = 0;
+                            $subTotal = 0;
+                            $grandTotal = 0;
+                            if($request->input('extra_mattress') && $request->input('extra_mattress') > 0){
+                                 $extraMattressPrice = intval($request->input('extra_mattress')) * floatval($roomRow->extra_mattress_price);
+                            }
+                            if($roomPriceRow->price > 0){
+                                 $subTotal = intval($request->input('rooms')) * floatval($roomPriceRow->price);
+                            }
+                            if($roomPriceRow->price > 0){
+                                 $grandTotal = floatval($subTotal) + floatval($extraMattressPrice);
+                            }    
+
+                            $setOrderData['invoice_id'] = date('Y').'/'.date('m').'/N'.$inc_no;
+			                $setOrderData['in_no'] = $inc_no;
+                            $setOrderData['user_id'] = $userID;
+                            $setOrderData['hotel_id'] = $roomRow->hotel_id;
+                            $setOrderData['room_id'] = $request->input('room_id');
+                            $setOrderData['room_price_id'] = $request->input('room_price_id');
+                            $setOrderData['adults'] = $request->input('adults');
+                            $setOrderData['childs'] = $request->input('childerns');
+                            $setOrderData['rooms'] = $request->input('rooms');
+                            $setOrderData['extra_mattress'] = $request->input('extra_mattress');
+                            $setOrderData['extra_mattress_price'] = $extraMattressPrice;
+                            $setOrderData['sub_total'] = $subTotal;
+                            $setOrderData['grand_total'] = $grandTotal;
+                            $setOrderData['billing_name'] = $request->input('user_name');
+                            $setOrderData['billing_email'] = $request->input('user_email');
+                            $setOrderData['billing_phone'] = $request->input('user_mobile');
+                            $setOrderData['billing_city'] = $request->input('user_data')['city'];
+                            $setOrderData['billing_state'] = $request->input('user_data')['state'];
+                            $setOrderData['payment_status'] ="PENDING";
+                            $setOrderData['check_in_date'] = $checkInDate;
+                            $setOrderData['check_out_date'] = $checkOutDate;
+                            $setOrderData['order_platform'] = "WEB APP";
+                            $setOrderData['payment_method_type'] = "PREPAID";
+                            $setOrderData['other_details'] = $otherDetals;
+                            $orderData = self::$Orders->CreateRecord($setOrderData);
+			                $order_id = $orderData->id;
+
+                            $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
+                            $order = $api->order->create([
+                                'receipt' => 'rcptid_' . time(),
+                                'amount' => $grandTotal * 100, // amount in paise
+                                'currency' => 'INR',
+                            ]);
+
+                            $data = [
+                                'order_id' => $order['id'],
+                                'amount' => $order['amount'],
+                                'currency' => $order['currency'],
+                                'key' => env('RAZORPAY_KEY'),
+                                'o_id' => $order_id
+                            ];
+
+                            return response()->json(['success'=>true, 'data' => $data ],200);
+                        }else{
+                            return response()->json(['success'=>false,'message' => 'Room is already booked for selected dates.'],200);
+                        }
+                    }else{
+                        return response()->json(['success'=>false,'message' => 'invalid request'],200);
+                    }
+                }else{
+                    return response()->json(['success'=>false,'message' => 'invalid request'],200);
+                }
+            }
+        }
+        
     }
 
     #verify payment
@@ -699,7 +867,10 @@ class APIController extends Controller{
 
         if ($generatedSignature === $request->razorpay_signature) {
             $signatureStatus = true;
-            // ✅ Save payment success to DB here
+            $setOrderData['payment_status'] ="SUCCESS";
+            $setOrderData['txn_id'] = $request->razorpay_payment_id;
+            $setOrderData['id'] = $request->o_id;
+            $orderData = self::$Orders->UpdateRecord($setOrderData);
         }
 
         // Get the payment ID from the front-end (POST request)
@@ -713,5 +884,13 @@ class APIController extends Controller{
 
         return response()->json(['success' => $signatureStatus]);
     }
+
+    public function UpdateUser($request,$UserID){
+		$setUserData['name'] = $request->user_name;
+		$setUserData['state'] = $request->user_state;
+		$setUserData['city'] = $request->user_city;
+		self::$UserModel->where('id', $UserID)->update($setUserData);
+		return $UserID;
+	}
     
 }
