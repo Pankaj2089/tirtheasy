@@ -31,5 +31,7 @@ Route::prefix('api')->group(function(){
 	Route::post('/get-cities-list',[APIController::class, 'getStateCitiesList'])->name('get-cities-list');
 
 	Route::post('/create-order', [APIController::class, 'createOrder']);
-	Route::post('/verify-payment', [APIController::class, 'verifyPayment']);	
+	Route::post('/verify-payment', [APIController::class, 'verifyPayment']);
+	Route::get('/get-offers', [APIController::class, 'getCouponCodes']);	
+	Route::post('/delete-temp-order', [APIController::class, 'deleteTempOrder']);
 });

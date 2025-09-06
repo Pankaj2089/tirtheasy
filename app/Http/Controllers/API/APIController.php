@@ -32,6 +32,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use App\Models\Languages;
+use App\Models\CouponCodes;
 use Session;
 use Validator;
 use Mail;
@@ -66,6 +67,7 @@ class APIController extends Controller{
     private static $UserModel;
     private static $UserAccessCode;
     private static $Orders;
+    private static $CouponCodes;
     public function __construct(){
         self::$Banners = new Banners();
         self::$Promotions = new Promotions();
@@ -90,6 +92,7 @@ class APIController extends Controller{
         self::$UserModel = new AdminUser();
         self::$UserAccessCode = new UserAccessCode();
         self::$Orders = new Orders();
+        self::$CouponCodes = new CouponCodes();
         self::$rootURL = "http://localhost/tirtheasy/";
     }
 
@@ -797,6 +800,11 @@ class APIController extends Controller{
                                  $grandTotal = floatval($subTotal) + floatval($extraMattressPrice);
                             }    
 
+                            #coupon applied
+                            if(floatval($request->input('coupon_amtount')) > 0){
+                                $grandTotal = floatval($grandTotal) - floatval($request->input('coupon_amtount'));
+                            }
+
                             $setOrderData['invoice_id'] = date('Y').'/'.date('m').'/N'.$inc_no;
 			                $setOrderData['in_no'] = $inc_no;
                             $setOrderData['user_id'] = $userID;
@@ -821,6 +829,8 @@ class APIController extends Controller{
                             $setOrderData['order_platform'] = "WEB APP";
                             $setOrderData['payment_method_type'] = "PREPAID";
                             $setOrderData['other_details'] = $otherDetals;
+                            $setOrderData['coupon_code'] = $request->input('coupon_code');
+                            $setOrderData['discount'] = $request->input('coupon_amtount');
                             $orderData = self::$Orders->CreateRecord($setOrderData);
 			                $order_id = $orderData->id;
 
@@ -885,6 +895,7 @@ class APIController extends Controller{
         return response()->json(['success' => $signatureStatus]);
     }
 
+    #update user
     public function UpdateUser($request,$UserID){
 		$setUserData['name'] = $request->user_name;
 		$setUserData['state'] = $request->user_state;
@@ -892,5 +903,22 @@ class APIController extends Controller{
 		self::$UserModel->where('id', $UserID)->update($setUserData);
 		return $UserID;
 	}
+
+    #get coupons
+    public function getCouponCodes(Request $request){
+        $today = date('Y-m-d');
+        $couponCodes = self::$CouponCodes->where('status', 1)
+        ->whereDate('start_date', '<=', $today)
+        ->whereDate('end_date', '>=', $today)
+        ->orderBy('title', 'ASC')->get();
+
+        return response()->json(['success'=>true, 'records' => $couponCodes],200);
+    }
+     #get coupons
+    public function deleteTempOrder(Request $request){
+        self::$Orders->where('id',$request->input('o_id'))->delete();
+        return response()->json(['success'=>true],200);
+    }
+
     
 }
