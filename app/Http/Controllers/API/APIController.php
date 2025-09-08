@@ -843,6 +843,7 @@ class APIController extends Controller{
 
                             $data = [
                                 'order_id' => $order['id'],
+                                'invoice_id' => $order['invoice_id'],
                                 'amount' => $order['amount'],
                                 'currency' => $order['currency'],
                                 'key' => env('RAZORPAY_KEY'),
@@ -914,11 +915,25 @@ class APIController extends Controller{
 
         return response()->json(['success'=>true, 'records' => $couponCodes],200);
     }
-     #get coupons
+    #get coupons
     public function deleteTempOrder(Request $request){
         self::$Orders->where('id',$request->input('o_id'))->delete();
         return response()->json(['success'=>true],200);
     }
-
+    
+   #get coupons
+    public function getOrderData(Request $request){
+        $record = self::$Orders->where('invoice_id',(string) $request->input('o_id'))->first();
+        if(isset($record->id)){
+          $record->booking_date = date('d F Y',strtotime($record->created_at));
+          if(!empty($record->other_details)){
+            $record->other_details = json_decode($record->other_details);
+            if(isset($record->other_details->roomDetails->hotel_details->image) && !empty(($record->other_details->roomDetails->hotel_details->image))){
+                $record->other_details->roomDetails->hotel_details->image = self::$rootURL.'public/img/hotel/'.$record->other_details->roomDetails->hotel_details->image;
+            }
+          }
+        }
+        return response()->json(['success'=>true, 'record' => $record],200);
+    }
     
 }

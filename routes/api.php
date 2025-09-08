@@ -34,4 +34,5 @@ Route::prefix('api')->group(function(){
 	Route::post('/verify-payment', [APIController::class, 'verifyPayment']);
 	Route::get('/get-offers', [APIController::class, 'getCouponCodes']);	
 	Route::post('/delete-temp-order', [APIController::class, 'deleteTempOrder']);
+	Route::post('/get-order-data', [APIController::class, 'getOrderData']);
 });
