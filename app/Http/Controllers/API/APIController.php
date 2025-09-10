@@ -22,6 +22,7 @@ use App\Models\RoomImages;
 use App\Models\RoomPrices;
 use App\Models\AdminUser;
 use App\Models\UserAccessCode;
+use App\Models\Contacts;
 use App\Models\Orders;
 use App\RouteHelper;
 use App\Models\TokenHelper;
@@ -68,6 +69,7 @@ class APIController extends Controller{
     private static $UserAccessCode;
     private static $Orders;
     private static $CouponCodes;
+    private static $ContactsModel;
     public function __construct(){
         self::$Banners = new Banners();
         self::$Promotions = new Promotions();
@@ -93,6 +95,7 @@ class APIController extends Controller{
         self::$UserAccessCode = new UserAccessCode();
         self::$Orders = new Orders();
         self::$CouponCodes = new CouponCodes();
+        self::$ContactsModel = new Contacts();
         self::$rootURL = "http://localhost/tirtheasy/";
     }
 
@@ -935,5 +938,51 @@ class APIController extends Controller{
         }
         return response()->json(['success'=>true, 'record' => $record],200);
     }
+
+
+    #saveContactUs
+    public function saveContactUs(Request $request){
+
+        if($request->input()){
+            $validator = Validator::make($request->all(), [
+				'name' => 'required', 
+				'email' => 'required|email', 
+				'mobile' => 'required|min:10|numeric',
+				'message' => 'required',  
+			], [
+                'name.required' => 'Please enter your full name.',
+				'email.required' => 'Please enter your email address.',
+                'email.email' => 'Please enter your valid email address.',
+                'mobile.required' => 'Please enter your mobile number.',
+                'mobile.min' => 'Please enter valid mobile number',
+                'mobile.numeric' => 'Please enter valid mobile number',
+				'message.required' => 'Please enter your message.'
+			]);
+            if($validator->fails()){
+                $errors = $validator->errors();
+                if($errors->first('name')){
+                    return response()->json(['success'=>false,'message' => $errors->first('name')],200);
+                }
+                if($errors->first('email')){
+                    return response()->json(['success'=>false,'message' => $errors->first('email')],200);
+                }
+                if($errors->first('mobile')){
+                    return response()->json(['success'=>false,'message' => $errors->first('mobile')],200);
+                }
+                if($errors->first('message')){
+                    return response()->json(['success'=>false,'message' => $errors->first('message')],200);
+                }
+                
+            } else {
+
+                $setUserData['name'] = $request->input('name');
+                $setUserData['email'] = $request->input('email');
+                $setUserData['contact'] = $request->input('mobile');
+                $setUserData['message'] = $request->input('message');
+                self::$ContactsModel->CreateRecord($setUserData);
+                return response()->json(['success'=>true],200);
+            }
+        }
+	}
     
 }

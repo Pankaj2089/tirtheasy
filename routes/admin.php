@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\PromotionsController;
 use App\Http\Controllers\Admin\PopularDestinationsController;
 use App\Http\Controllers\Admin\PremiumFacilitiesController;
 use App\Http\Controllers\Admin\CouponCodesController;
+use App\Http\Controllers\Admin\FaqsController;
 
 Route::prefix('panel')->group(function(){
 	
@@ -181,6 +182,12 @@ Route::prefix('panel')->group(function(){
     Route::any('/coupon_codes_paginate',[CouponCodesController::class, 'listPaginate'])->name('admin.coupon_codes_paginate');
     Route::any('/add-coupon-code',[CouponCodesController::class, 'addPage'])->name('admin.add-coupon-code');
     Route::any('/edit-coupon-code/{row_id}',[CouponCodesController::class, 'editPage'])->name('admin.edit-coupon-code');
+	
+	#faqs
+    Route::get('/faqs',[FaqsController::class, 'getList'])->name('admin.faqs');
+    Route::any('/faqs_paginate',[FaqsController::class, 'listPaginate'])->name('admin.faqs_paginate');
+	Route::any('/get-faq',[FaqsController::class, 'getPage'])->name('admin.get-faq');
+	Route::any('/add-faq',[FaqsController::class, 'addPage'])->name('admin.add-faq');
 	
 });
 
