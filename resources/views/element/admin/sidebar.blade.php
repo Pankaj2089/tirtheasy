@@ -195,5 +195,30 @@
               </li>
             </ul>
         </li>
+
+         @php                        
+         $cmanagerActive = $contactUs =  $bookingEnquiries = false;
+       
+         if($action =='admin.contact-us'){
+         	$cmanagerActive = $contactUs = true;
+         }
+         if($action =='admin.booking-enquiries' || $action =='view-booking-enquiries'){
+         	$cmanagerActive = $contactUs = true;
+         }
+         @endphp
+         <li class="menu-item  {{ $cmanagerActive ? 'active open':'' }}">
+          <a href="javascript:void(0);" class="menu-link menu-toggle"> 
+            <i class="menu-icon icon-bar ti tabler-message"></i>
+            <div data-i18n="Contact Enquiries">Contact Enquiries</div>
+          </a>
+            <ul class="menu-sub">
+              <li class="menu-item  {{ $contactUs ? 'active':'' }}">
+                <a href="{{route('admin.contact-us')}}" class="menu-link">Contact Us</a>
+              </li>
+              <li class="menu-item  {{ $bookingEnquiries ? 'active':'' }}">
+                <a href="{{route('admin.booking-enquiries')}}" class="menu-link">Bookings</a>
+              </li>
+            </ul>
+        </li>
     </ul>
   </aside>

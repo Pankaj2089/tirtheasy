@@ -985,4 +985,64 @@ class APIController extends Controller{
         }
 	}
     
+    #saveBookingEnquiry
+    public function saveBookingEnquiry(Request $request){
+
+        if($request->input()){
+            $validator = Validator::make($request->all(), [
+				'booking_name' => 'required', 
+				'booking_email' => 'required|email', 
+				'booking_mobile' => 'required|min:10|numeric',
+                'booking_total_guest' =>'required|min:1|numeric',
+				'booking_message' => 'required',  
+			], [
+                'booking_name.required' => 'Please enter your full name.',
+				'booking_email.required' => 'Please enter your email address.',
+                'booking_email.email' => 'Please enter your valid email address.',
+                'booking_mobile.required' => 'Please enter your mobile number.',
+                'booking_mobile.min' => 'Please enter valid mobile number',
+                'booking_mobile.numeric' => 'Please enter valid mobile number',
+                'booking_total_guest.required' => 'Please enter number of guest.',
+                'booking_total_guest.min' => 'Please enter valid  number of guest',
+                'booking_total_guest.numeric' => 'Please enter valid number of guest',
+				'booking_message.required' => 'Please enter your message.'
+			]);
+            if($validator->fails()){
+                $errors = $validator->errors();
+                if($errors->first('booking_name')){
+                    return response()->json(['success'=>false,'message' => $errors->first('booking_name')],200);
+                }
+                if($errors->first('email')){
+                    return response()->json(['success'=>false,'message' => $errors->first('booking_email')],200);
+                }
+                if($errors->first('booking_mobile')){
+                    return response()->json(['success'=>false,'message' => $errors->first('booking_mobile')],200);
+                }
+                if($errors->first('booking_total_guest')){
+                    return response()->json(['success'=>false,'message' => $errors->first('booking_total_guest')],200);
+                }
+                if($errors->first('booking_message')){
+                    return response()->json(['success'=>false,'message' => $errors->first('booking_message')],200);
+                }
+                
+            } else {
+
+                $setUserData['type'] = "BookingEnquiry";
+                $setUserData['name'] = $request->input('booking_name');
+                $setUserData['email'] = $request->input('booking_email');
+                $setUserData['contact'] = $request->input('booking_mobile');
+                $setUserData['message'] = $request->input('booking_message');
+                $setUserData['booking_number'] = $request->input('booking_number');
+                $setUserData['booking_total_guest'] = $request->input('booking_total_guest');
+                $setUserData['booking_type'] = $request->input('booking_type');
+                $setUserData['destinations'] = "";
+                if($request->input('destinations') && count($request->input('destinations')) > 0){
+                    $setUserData['destinations'] = json_encode($request->input('destinations'));
+                }
+                self::$ContactsModel->CreateRecord($setUserData);
+                return response()->json(['success'=>true],200);
+            }
+        }
+	}
+    
 }

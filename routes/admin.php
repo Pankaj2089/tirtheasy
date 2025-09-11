@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\PopularDestinationsController;
 use App\Http\Controllers\Admin\PremiumFacilitiesController;
 use App\Http\Controllers\Admin\CouponCodesController;
 use App\Http\Controllers\Admin\FaqsController;
+use App\Http\Controllers\Admin\ContactUsController;
 
 Route::prefix('panel')->group(function(){
 	
@@ -188,6 +189,14 @@ Route::prefix('panel')->group(function(){
     Route::any('/faqs_paginate',[FaqsController::class, 'listPaginate'])->name('admin.faqs_paginate');
 	Route::any('/get-faq',[FaqsController::class, 'getPage'])->name('admin.get-faq');
 	Route::any('/add-faq',[FaqsController::class, 'addPage'])->name('admin.add-faq');
+
+	#contacts
+    Route::get('/contact-us',[ContactUsController::class, 'getList'])->name('admin.contact-us');
+    Route::any('/contact_us_paginate',[ContactUsController::class, 'listPaginate'])->name('admin.contact_us_paginate');
+	
+	Route::get('/booking-enquiries',[ContactUsController::class, 'getBookingList'])->name('admin.booking-enquiries');
+    Route::any('/booking_enquiries_paginate',[ContactUsController::class, 'listBookingPaginate'])->name('admin.booking_enquiries_paginate');
+    Route::any('/view-booking-enquiries/{row_id}',[ContactUsController::class, 'viewBookingEnquiryPage'])->name('admin.view-booking-enquiries');
 	
 });
 

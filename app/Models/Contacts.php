@@ -15,11 +15,16 @@ class Contacts extends Authenticatable{
      * @var array<int, string>
      */
     protected $fillable = [
-		'name',
-		'email',
-		'contact',
-		'subject',
-		'message'
+      'type',
+      'name',
+      'email',
+      'contact',
+      'subject',
+      'message',
+      'booking_number',
+      'booking_total_guest',
+      'booking_type',
+      'destinations'
     ];
 
     /**

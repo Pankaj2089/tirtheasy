@@ -36,4 +36,5 @@ Route::prefix('api')->group(function(){
 	Route::post('/delete-temp-order', [APIController::class, 'deleteTempOrder']);
 	Route::post('/get-order-data', [APIController::class, 'getOrderData']);
 	Route::post('/save-contact-us', [APIController::class, 'saveContactUs']);
+	Route::post('/save-booking-enquiry', [APIController::class, 'saveBookingEnquiry']);
 });
