@@ -791,13 +791,25 @@ class APIController extends Controller{
                             $otherDetals = json_encode(['userDetails' => $request->input('user_data'), 'roomDetails'=> $roomDetails]);
                             
                             $extraMattressPrice = 0;
+                            $roomPrice = 0;
                             $subTotal = 0;
                             $grandTotal = 0;
+                            $date1 = new \DateTime($checkInDate);
+                            $date2 = new \DateTime($checkOutDate);
+                            
+
+                            // Difference
+                            $diff = $date1->diff($date2);
+
+                            // Get difference in days
+                            $night =  $diff->days > 0 ?$diff->days :1 ; 
+
                             if($request->input('extra_mattress') && $request->input('extra_mattress') > 0){
-                                 $extraMattressPrice = intval($request->input('extra_mattress')) * floatval($roomRow->extra_mattress_price);
+                                 $extraMattressPrice = intval($request->input('extra_mattress')) * floatval($roomRow->extra_mattress_price)  * intval($night);
                             }
                             if($roomPriceRow->price > 0){
-                                 $subTotal = intval($request->input('rooms')) * floatval($roomPriceRow->price);
+                                $roomPrice = floatval($roomPriceRow->price);
+                                 $subTotal = intval($request->input('rooms')) * floatval($roomPriceRow->price) * intval($night) ;
                             }
                             if($roomPriceRow->price > 0){
                                  $grandTotal = floatval($subTotal) + floatval($extraMattressPrice);
@@ -817,8 +829,10 @@ class APIController extends Controller{
                             $setOrderData['adults'] = $request->input('adults');
                             $setOrderData['childs'] = $request->input('childerns');
                             $setOrderData['rooms'] = $request->input('rooms');
+                            $setOrderData['number_of_nights'] = $night;
                             $setOrderData['extra_mattress'] = $request->input('extra_mattress');
                             $setOrderData['extra_mattress_price'] = $extraMattressPrice;
+                            $setOrderData['room_price'] = $roomPrice;
                             $setOrderData['sub_total'] = $subTotal;
                             $setOrderData['grand_total'] = $grandTotal;
                             $setOrderData['billing_name'] = $request->input('user_name');
@@ -846,7 +860,7 @@ class APIController extends Controller{
 
                             $data = [
                                 'order_id' => $order['id'],
-                                'invoice_id' => $order['invoice_id'],
+                                'invoice_id' => $setOrderData['invoice_id'],
                                 'amount' => $order['amount'],
                                 'currency' => $order['currency'],
                                 'key' => env('RAZORPAY_KEY'),

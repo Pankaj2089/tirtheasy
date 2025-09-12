@@ -178,20 +178,25 @@
         </li>
 
          @php                        
-         $managerActive = $coupon_codes =  false;
-       
+         $managerActive = $coupon_codes =  $orders = false;
          if($action =='admin.coupon-codes' ||  $action =='admin.add-coupon-code' ||  $action =='admin.edit-coupon-code'){
          	$managerActive = $coupon_codes = true;
          }
+         if( $action =='admin.orders'){
+         	$managerActive = $orders = true;
+         }
          @endphp
          <li class="menu-item  {{ $managerActive ? 'active open':'' }}">
-          <a href="javascript:void(0);" class="menu-link menu-toggle"> 
-            <i class="menu-icon icon-bar ti tabler-chart-histogram"></i>
-            <div data-i18n="Orders">Orders</div>
-          </a>
+            <a href="javascript:void(0);" class="menu-link menu-toggle"> 
+              <i class="menu-icon icon-bar ti tabler-chart-histogram"></i>
+              <div data-i18n="Orders">Orders</div>
+            </a>
             <ul class="menu-sub">
               <li class="menu-item  {{ $coupon_codes ? 'active':'' }}">
                 <a href="{{route('admin.coupon-codes')}}" class="menu-link">Coupon Codes</a>
+              </li>
+              <li class="menu-item  {{ $orders ? 'active':'' }}">
+                <a href="{{route('admin.orders')}}" class="menu-link">Orders</a>
               </li>
             </ul>
         </li>

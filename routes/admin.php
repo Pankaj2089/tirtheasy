@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\PremiumFacilitiesController;
 use App\Http\Controllers\Admin\CouponCodesController;
 use App\Http\Controllers\Admin\FaqsController;
 use App\Http\Controllers\Admin\ContactUsController;
+use App\Http\Controllers\Admin\OrdersController;
 
 Route::prefix('panel')->group(function(){
 	
@@ -194,9 +195,15 @@ Route::prefix('panel')->group(function(){
     Route::get('/contact-us',[ContactUsController::class, 'getList'])->name('admin.contact-us');
     Route::any('/contact_us_paginate',[ContactUsController::class, 'listPaginate'])->name('admin.contact_us_paginate');
 	
+	#booking enquiries
 	Route::get('/booking-enquiries',[ContactUsController::class, 'getBookingList'])->name('admin.booking-enquiries');
     Route::any('/booking_enquiries_paginate',[ContactUsController::class, 'listBookingPaginate'])->name('admin.booking_enquiries_paginate');
     Route::any('/view-booking-enquiries/{row_id}',[ContactUsController::class, 'viewBookingEnquiryPage'])->name('admin.view-booking-enquiries');
+
+	#orders
+	Route::get('/orders',[OrdersController::class, 'getList'])->name('admin.orders');
+    Route::any('/orders_paginate',[OrdersController::class, 'listPaginate'])->name('admin.orders_paginate');
+    Route::any('/view-order/{row_id}',[OrdersController::class, 'viewOrderPage'])->name('admin.view-order');
 	
 });
 
