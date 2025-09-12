@@ -57,7 +57,7 @@ $siteUrl = env('APP_URL');
     @endforeach
     @else
     <tr>
-        <td align="center" colspan="6">Record not found</td>
+        <td align="center" colspan="8">Record not found</td>
     </tr>
     @endif
     <tr>
