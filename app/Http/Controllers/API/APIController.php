@@ -24,6 +24,7 @@ use App\Models\AdminUser;
 use App\Models\UserAccessCode;
 use App\Models\Contacts;
 use App\Models\Orders;
+use App\Models\Wishlists;
 use App\RouteHelper;
 use App\Models\TokenHelper;
 use App\Models\Responses;
@@ -70,6 +71,7 @@ class APIController extends Controller{
     private static $Orders;
     private static $CouponCodes;
     private static $ContactsModel;
+    private static $Wishlists;
     public function __construct(){
         self::$Banners = new Banners();
         self::$Promotions = new Promotions();
@@ -96,6 +98,7 @@ class APIController extends Controller{
         self::$Orders = new Orders();
         self::$CouponCodes = new CouponCodes();
         self::$ContactsModel = new Contacts();
+        self::$Wishlists = new Wishlists();
         self::$rootURL = "http://localhost/tirtheasy/";
     }
 
@@ -1059,4 +1062,95 @@ class APIController extends Controller{
         }
 	}
     
+    public function getProfile(Request $request){
+		$User = self::$UserModel->GetRecordById($GLOBALS['USER.ID'])->toArray();
+        $User['state_id'] = 0;
+        $User['city_id'] = 0;
+        if(!empty($User['state'])){
+            $stateID = self::$States->select('id')->where('title', $User['state'])->first();
+
+            if ($stateID) {
+                $User['state_id'] = $stateID->id;
+            }
+        }
+        if(!empty($User['city'])){
+            $citiyID = self::$Cities->select('id')->where('title', $User['city'])->first();
+
+            if ($citiyID) {
+                $User['city_id'] = $citiyID->id;
+            }
+        }
+		return response()->json(['success'=>true,'details'=>$User],200);
+	}
+
+    public function updateProfile(Request $request){
+		$userData = self::$UserModel->where('id',$GLOBALS['USER.ID'])->where('status','!=', 3)->first();
+		if(isset($userData->id)){
+
+			$setData['id'] = $GLOBALS['USER.ID'];
+			$setData['name'] = $request->input('name');
+			$setData['mobile'] = $request->input('mobile');
+			$setData['address'] = $request->input('address');
+			$setData['state'] = $request->input('state');
+			$setData['city'] = $request->input('city');
+			$setData['zipcode'] = $request->input('zipcode');
+			
+			//$setData['referal_code'] = $request->input('referal_code');
+			
+			self::$UserModel->UpdateRecord($setData);
+
+			return response()->json(['success'=>true,'message' => 'Profile updated successfully', 'update' => true, 'userid' => $userData->id],200);
+		}else{
+			return response()->json(['success'=>false, 'message' => 'User does not exist', 'update' => false, 'userid' => NULL],200);
+		}
+	}
+    
+    public function manageMyWishlists(Request $request){
+		
+         $record = self::$Wishlists->where('user_id', $GLOBALS['USER.ID'])->where('hotel_id', $request->input('hotel_id'))->exists();
+         if($record){
+            self::$Wishlists->where('user_id', $GLOBALS['USER.ID'])->where('hotel_id', $request->input('hotel_id'))->delete();
+            return response()->json(['success'=>true, 'record' => false, 'message' => "Hotel removed in wishlist successfully."],200);
+         }else{
+            $setData['user_id'] = $GLOBALS['USER.ID'];
+			$setData['hotel_id'] = $request->input('hotel_id');			
+			self::$Wishlists->CreateRecord($setData);
+            return response()->json(['success'=>true, 'record' => true, 'message' => "Hotel added in wishlist successfully."],200);
+         }
+
+	}
+    
+    #get is wishlist
+    public function getIsWishlist(Request $request){
+        $record = self::$Wishlists->where('user_id', $GLOBALS['USER.ID'])->where('hotel_id', $request->input('hotel_id'))->exists();
+        return response()->json(['success'=>true, 'record' => $record],200);
+    }  
+    
+    #get my wishlist
+    public function myWishlist(Request $request){
+        $records = self::$Wishlists->where('user_id', $GLOBALS['USER.ID'])->get();
+
+        if(count($records) > 0){
+            foreach($records as $record){
+                if(isset($record->hotel_id) && $record->hotel_id > 0){
+                    $record->hotel = [];
+                    $hotel = self::$Hotels->where('status', 1)->where('id', $record->hotel_id)->orderBy('id', 'ASC')->first();
+                    if(isset($hotel->id)){
+                        $hotel->facilities_list = [];
+                        if(!empty($hotel->facilities)){
+                            $facilitiesId = json_decode($hotel->facilities);
+                            $hotel->facilities_list = self::$Facilities->select('title')->where('status', 1)->whereIn('id', $facilitiesId)->orderBy('title', 'ASC')->get();
+                        }
+                        if(isset($hotel->image) && $hotel->image != ""){
+                            $hotel->image = self::$rootURL.'public/img/hotel/'.$hotel->image;
+                        }
+                        $record->hotel = $hotel;
+                    }
+                }
+            }
+
+        }
+
+        return response()->json(['success'=>true, 'records' => $records],200);
+    } 
 }

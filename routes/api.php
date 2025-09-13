@@ -2,6 +2,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\APIController;
+use App\Http\Middleware\RequiredParameters;
 
 Route::prefix('api')->group(function(){
 	Route::get('/sliders',[APIController::class, 'getBannersList'])->name('banners');
@@ -37,4 +38,11 @@ Route::prefix('api')->group(function(){
 	Route::post('/get-order-data', [APIController::class, 'getOrderData']);
 	Route::post('/save-contact-us', [APIController::class, 'saveContactUs']);
 	Route::post('/save-booking-enquiry', [APIController::class, 'saveBookingEnquiry']);
+
+	
+	Route::get('/get-user-details', [APIController::class, 'getProfile'])->middleware(RequiredParameters::class);
+	Route::post('/update-profile', [APIController::class, 'updateProfile'])->middleware(RequiredParameters::class);
+	Route::post('/manage-my-wishlist', [APIController::class, 'manageMyWishlists'])->middleware(RequiredParameters::class);
+	Route::post('/get-is-wishlist', [APIController::class, 'getIsWishlist'])->middleware(RequiredParameters::class);
+	Route::get('/my-wishlist', [APIController::class, 'myWishlist'])->middleware(RequiredParameters::class);
 });
