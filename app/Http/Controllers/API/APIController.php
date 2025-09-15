@@ -1129,7 +1129,6 @@ class APIController extends Controller{
     #get my wishlist
     public function myWishlist(Request $request){
         $records = self::$Wishlists->where('user_id', $GLOBALS['USER.ID'])->get();
-
         if(count($records) > 0){
             foreach($records as $record){
                 if(isset($record->hotel_id) && $record->hotel_id > 0){
@@ -1148,9 +1147,41 @@ class APIController extends Controller{
                     }
                 }
             }
+        }
+        return response()->json(['success'=>true, 'records' => $records],200);
+    } 
+    
+    #get coupons
+    public function getMyBooking(Request $request){
 
+        $records = ['upcoming' =>[], 'completed' =>[], 'canceled' => []];
+        $orders = self::$Orders->where('user_id',$GLOBALS['USER.ID'])->get();
+        $currentDate = date('Y-m-d');
+        if(count($orders) > 0){
+            foreach($orders as $record){
+
+                $record->booking_date = date('d F Y',strtotime($record->created_at));
+                $record->checkedIn = date('d M Y',strtotime($record->check_in_date));
+                $record->checkedOut = date('d M Y',strtotime($record->check_out_date));
+
+                if(!empty($record->other_details)){
+                    $record->other_details = json_decode($record->other_details);
+                    if(isset($record->other_details->roomDetails->hotel_details->image) && !empty(($record->other_details->roomDetails->hotel_details->image))){
+                        $record->other_details->roomDetails->hotel_details->image = self::$rootURL.'public/img/hotel/'.$record->other_details->roomDetails->hotel_details->image;
+                    }
+                }
+                if($record->is_cancelled == 0 && $record->check_in_date <= $currentDate ){
+                    $records['upcoming'][] = $record;
+                }
+                if($record->is_cancelled == 0 && $record->check_in_date > $currentDate ){
+                    $records['completed'][] = $record;
+                }
+                if($record->is_cancelled > 0){
+                    $records['canceled'][] = $record;
+                }
+            }
         }
 
         return response()->json(['success'=>true, 'records' => $records],200);
-    } 
+    }
 }

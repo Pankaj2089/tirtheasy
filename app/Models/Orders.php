@@ -48,7 +48,8 @@ class Orders extends Authenticatable
         "extra_mattress_price",
         "in_no",
         "number_of_nights",
-        "room_price"
+        "room_price",
+        "is_cancelled"
     ];
 
     protected $UpdatableFields = [ ];

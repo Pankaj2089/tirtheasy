@@ -45,4 +45,5 @@ Route::prefix('api')->group(function(){
 	Route::post('/manage-my-wishlist', [APIController::class, 'manageMyWishlists'])->middleware(RequiredParameters::class);
 	Route::post('/get-is-wishlist', [APIController::class, 'getIsWishlist'])->middleware(RequiredParameters::class);
 	Route::get('/my-wishlist', [APIController::class, 'myWishlist'])->middleware(RequiredParameters::class);
+	Route::get('/get-my-booking', [APIController::class, 'getMyBooking'])->middleware(RequiredParameters::class);
 });
