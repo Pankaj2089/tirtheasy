@@ -38,6 +38,7 @@ Route::prefix('api')->group(function(){
 	Route::post('/get-order-data', [APIController::class, 'getOrderData']);
 	Route::post('/save-contact-us', [APIController::class, 'saveContactUs']);
 	Route::post('/save-booking-enquiry', [APIController::class, 'saveBookingEnquiry']);
+	Route::get('/get-faqs', [APIController::class, 'getFaqs']);
 
 	
 	Route::get('/get-user-details', [APIController::class, 'getProfile'])->middleware(RequiredParameters::class);

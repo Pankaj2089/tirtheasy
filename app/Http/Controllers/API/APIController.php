@@ -14,6 +14,7 @@ use App\Models\Cities;
 use App\Models\Facilities;
 use App\Models\Amenities;
 use App\Models\HotelFaqs;
+use App\Models\Faqs;
 use App\Models\HotelRules;
 use App\Models\HotelDetails;
 use App\Models\HotelLandmarks;
@@ -72,6 +73,7 @@ class APIController extends Controller{
     private static $CouponCodes;
     private static $ContactsModel;
     private static $Wishlists;
+    private static $Faqs;
     public function __construct(){
         self::$Banners = new Banners();
         self::$Promotions = new Promotions();
@@ -99,6 +101,7 @@ class APIController extends Controller{
         self::$CouponCodes = new CouponCodes();
         self::$ContactsModel = new Contacts();
         self::$Wishlists = new Wishlists();
+        self::$Faqs = new Faqs();
         self::$rootURL = "http://localhost/tirtheasy/";
     }
 
@@ -1184,4 +1187,20 @@ class APIController extends Controller{
 
         return response()->json(['success'=>true, 'records' => $records],200);
     }
+
+    #get faqs
+    public function getFaqs(Request $request){
+        $faqs = [];
+        $records = self::$Faqs->where('status', 1)->orderBy('category', 'ASC')->get();
+        $categories = [];
+        if(count($records) > 0){
+            foreach($records as $record){
+                if(!in_array($record->category, $categories)){
+                    $categories[] = $record->category;
+                }
+                $faqs[$record->category][] =['question' =>$record->question, 'answer' =>$record->answer ]; 
+            }
+        }
+        return response()->json(['success'=>true, 'records' => $faqs, 'categories' => $categories],200);
+    } 
 }

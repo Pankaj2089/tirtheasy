@@ -12,7 +12,17 @@
   <div class="col-md-2">
       <select name="search_category" class="form-select select2">
         <option value="">Category</option>
-        <option value="Contact Us">Contact Us</option>
+        <option value="Account Management">Account Management</option>
+        <option value="Booking Details">Booking Details</option>
+        <option value="Cancellation">Cancellation</option>
+        <option value="Payment/Refund Information">Payment/Refund Information</option>
+        <option value="Change Booking Dates">Change Booking Dates</option>
+        <option value="Manage Guest">Manage Guest</option>
+        <option value="Booking Confirmation">Booking Confirmation</option>
+        <option value="Special Requests">Special Requests</option>
+        <option value="Property Related Questions">Property Related Questions</option>
+        <option value="Best Price Guarantee">Best Price Guarantee</option>
+        <option value="Customer Service">Customer Service</option>
       </select>
     </div>
   <div class="col-md-2">
@@ -77,7 +87,17 @@
                 <div class="input-group-merge">
                  <select name="category" id="category" class="form-select">
                     <option value="">Category</option>
-                    <option value="Contact Us">Contact Us</option>
+                    <option value="Account Management">Account Management</option>
+                    <option value="Booking Details">Booking Details</option>
+                    <option value="Cancellation">Cancellation</option>
+                    <option value="Payment/Refund Information">Payment/Refund Information</option>
+                    <option value="Change Booking Dates">Change Booking Dates</option>
+                    <option value="Manage Guest">Manage Guest</option>
+                    <option value="Booking Confirmation">Booking Confirmation</option>
+                    <option value="Special Requests">Special Requests</option>
+                    <option value="Property Related Questions">Property Related Questions</option>
+                    <option value="Best Price Guarantee">Best Price Guarantee</option>
+                    <option value="Customer Service">Customer Service</option>
                 </select>
                 </div>
               </div>
