@@ -608,6 +608,7 @@ class APIController extends Controller{
     
     #get hotel rooms api
     public function getHotelRooms(Request $request){
+        
         $records = self::$Rooms->where('status', 1)->where('hotel_id', $request->input('hotel_id'))->orderBy('price', 'ASC')->get();
         if(count($records) > 0){
              foreach($records as $record){
@@ -629,7 +630,7 @@ class APIController extends Controller{
                 }
                 $record->additional_images = $additionalImages;
 
-                $roomPriceIDs = [];
+                $bookedRooms = [];
                 # get prices
                 if($request->input('start_date') && !empty($request->input('start_date'))){
                  // check room already booked
@@ -645,9 +646,12 @@ class APIController extends Controller{
                                 ->where('check_out_date', '>=', $checkOutDate);
                         });
                     })->get();
+
+
                     if(count($orderRows) > 0){
                         foreach($orderRows as $orderRow){
-                            $roomPriceIDs[] = $orderRow->room_price_id;
+
+                            $bookedRooms[$orderRow->room_price_id] = isset($bookedRooms[$orderRow->room_price_id]) ? ($bookedRooms[$orderRow->room_price_id]+$orderRow->rooms) : $orderRow->rooms ;
                         }
                     }
 
@@ -667,8 +671,13 @@ class APIController extends Controller{
                         if(isset($price->amenities) && !empty($price->amenities)){
                             $price->amenities = json_decode($price->amenities);
                         }
-
-                        $price->room_available = !in_array($price->id, $roomPriceIDs);
+                        $price->room_available = true;
+                        if(isset($bookedRooms[$price->id])){
+                            $booked = $bookedRooms[$price->id] ?? 0; // if not booked, default 0
+                            $remaining = $price->no_of_rooms - $booked;
+                            $requested = $request->input('rooms');
+                            $price->room_available = $requested <= $remaining;
+                        }
                     }
                 }
 
@@ -755,8 +764,8 @@ class APIController extends Controller{
                         // check room already booked
                         $checkInDate = date('Y-m-d',strtotime($request->input('start_date')));
                         $checkOutDate = date('Y-m-d',strtotime($request->input('end_date')));;
-                        
-                        $orderRow =self::$Orders
+                        $bookedRooms = [];
+                        $orderRows =self::$Orders
                         ->where('room_id', $roomRow->id)
                         ->where('room_price_id', $request->input('room_price_id'))
                         ->where(function ($q) use ($checkInDate, $checkOutDate) {
@@ -766,10 +775,32 @@ class APIController extends Controller{
                                 $q2->where('check_in_date', '<=', $checkInDate)
                                     ->where('check_out_date', '>=', $checkOutDate);
                             });
-                        })
-                        ->exists();
+                        })->get();
 
-                        if(!$orderRow){
+                        if(count($orderRows) > 0){
+                            foreach($orderRows as $orderRow){
+                                $bookedRooms[$orderRow->room_price_id] = isset($bookedRooms[$orderRow->room_price_id]) ? ($bookedRooms[$orderRow->room_price_id]+$orderRow->rooms) : $orderRow->rooms ;
+                            }
+                        }
+
+                        $roomBooked = false;
+                        $roomPrices = self::$RoomPrices->where('status', 1)->where('id',$request->input('room_price_id'))->orderBy('price', 'ASC')->get();
+                        if(count($roomPrices) > 0){
+                            foreach($roomPrices as $price){
+                                $roomBooked = true;
+                                if(isset($bookedRooms[$price->id])){
+                                    $booked = $bookedRooms[$price->id] ?? 0; // if not booked, default 0
+                                    $remaining = $price->no_of_rooms - $booked;
+                                    $requested = $request->input('rooms');
+                                    $roomBooked = $requested <= $remaining;
+                                }
+                            }
+                        }else{
+                            $roomBooked = true;
+                        }
+
+
+                        if($roomBooked){
 
                             $userExist = self::$UserModel->where(array('mobile' => $request->user_mobile))->first();	
                             if(isset($userExist->id)){
