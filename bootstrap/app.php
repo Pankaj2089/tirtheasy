@@ -16,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
             );
         //
     })
+    // ->withMiddleware([
+    //     \App\Http\Middleware\CorsWhitelist::class,
+    // ])
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();

@@ -52,7 +52,7 @@ class AmenitiesController extends Controller{
         if($request->input('search_category_id') && $request->input('search_category_id') != ""){
             $query->where('amenities.category_id', $request->input('search_category_id'));
         }
-        $records = $query->orderBy('amenities.id', 'DESC')->paginate(20);
+        $records = $query->orderBy('amenity_categories.title', 'ASC')->paginate(20);
         return view('/panel/amenities/paginate', compact('records'));
     }
     #add new Service Type
@@ -83,7 +83,7 @@ class AmenitiesController extends Controller{
                 $setData['category_id'] = $request->input('category_id');
 
                 # profile pic upload
-				if(isset($request->icon) && $request->icon->extension() != ""){
+				if(isset($request->icon) && $request->icon != "undefined" && $request->icon->extension() != ""){
 					$validator = Validator::make($request->all(), [
 						'icon' => 'required|image|mimes:jpeg,png,jpg|max:1048'
 					]);

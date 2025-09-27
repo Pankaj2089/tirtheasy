@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\APIController;
 use App\Http\Middleware\RequiredParameters;
 
-Route::prefix('api')->group(function(){
+Route::prefix('api')->group(function () {	
 	Route::get('/sliders',[APIController::class, 'getBannersList'])->name('banners');
 	Route::post('/promotions',[APIController::class, 'getPromotionsList'])->name('promotions');
 	Route::post('/popular-destinations',[APIController::class, 'getPopularDestinationsList'])->name('popular-destinations');

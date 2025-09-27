@@ -43,7 +43,7 @@ class AmenityCategories extends Authenticatable{
 	}
   
   public function amenities(){
-		return $this->hasMany(Amenities::class, 'category_id');
+		return $this->hasMany(Amenities::class, 'category_id')->where('status', 1);
 	}
 
 	public function CreateRecord($Details){

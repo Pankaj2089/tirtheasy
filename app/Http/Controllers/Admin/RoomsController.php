@@ -132,6 +132,16 @@ class RoomsController extends Controller{
 				$setData['cancellation_policy'] = $request->input('cancellation_policy');
 				$setData['amenities'] = is_array($request->input('amenities')) && count($request->input('amenities')) > 0 ? json_encode($request->input('amenities')):'';
 				$record = self::$Rooms->CreateRecord($setData);
+
+				#add room price
+				$setPriceData['price'] = $request->input('price');
+                $setPriceData['no_of_guest'] = $request->input('no_of_guest');
+                $setPriceData['no_of_child'] = $request->input('no_of_child');
+                $setPriceData['no_of_rooms'] = $request->input('no_of_rooms');
+				$setPriceData['hotel_id'] = $request->input('hotel_id');
+				$setPriceData['room_id'] = $record->id;
+				self::$RoomPrices->CreateRecord($setPriceData);
+					
 				echo json_encode(array('heading' => 'Success', 'msg' => 'Record added successfully', 'recordID'=> $record->id));die;
             }
         }
@@ -212,7 +222,27 @@ class RoomsController extends Controller{
 				$setData['room_size'] = $request->input('room_size');
 				$setData['amenities'] = is_array($request->input('amenities')) && count($request->input('amenities')) > 0 ? json_encode($request->input('amenities')):'';
 				$setData['image'] = $actual_image_name;
-				$record = self::$Rooms->where('id',$row_id)->update($setData);
+				self::$Rooms->where('id',$row_id)->update($setData);
+
+				$record = self::$Rooms->where('id',$row_id)->first();
+
+				#add room price
+				$setPriceData['price'] = $request->input('price');
+                $setPriceData['no_of_guest'] = $request->input('no_of_guest');
+                $setPriceData['no_of_child'] = $request->input('no_of_child');
+                $setPriceData['no_of_rooms'] = $request->input('no_of_rooms');
+				$setPriceData['hotel_id'] = $record->hotel_id;
+				$setPriceData['room_id'] = $row_id;
+				
+				$existRecord = self::$RoomPrices
+				->where('room_id',$row_id)
+				->where('status','!=', 3)
+				->first();
+
+				if(!isset($existRecord['id'])){
+					self::$RoomPrices->CreateRecord($setPriceData);
+				}
+
 				echo json_encode(array('heading' => 'Success', 'msg' => 'Record updated successfully'));die;
             }
         }
@@ -334,7 +364,7 @@ class RoomsController extends Controller{
                 $setData['no_of_rooms'] = $request->input('no_of_rooms');
 				$setData['hotel_id'] = $request->input('hotel_id');
 				$setData['room_id'] = $request->input('room_id');
-				$setData['amenities'] = count($request->input('amenities')) > 0 ? json_encode($request->input('amenities')):'';
+				$setData['amenities'] = $request->input('amenities') && count($request->input('amenities')) > 0 ? json_encode($request->input('amenities')):'';
 				if($request->input('row_id') > 0){
 					self::$RoomPrices->where('id',$request->row_id)->update($setData);
 					echo json_encode(array('heading' => 'Success', 'msg' => 'Record updated successfully'));die;
