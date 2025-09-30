@@ -310,8 +310,14 @@ role="tab" aria-selected="false"> <span class="icon-base ti tabler-user-cog icon
                     <label class="form-label" for="facilities">Amenities</label>
                     <div class="col-12 form-control-validation">
                     <select type="text" id="amenities" name="amenities[]" class="form-select" multiple >
-                        @foreach($amenities as $amenities)
-                          <option value="{{$amenities->title}}">{{$amenities->title}}</option>
+                         @foreach($amenities as $amenitycat)
+                          @if(isset($amenitycat->amenities) && count($amenitycat->amenities) > 0)
+                          <optgroup label="{{$amenitycat->title}}">
+                              @foreach($amenitycat->amenities as $amenity)
+                              <option value="{{$amenity->title}}" {{in_array($amenity->id , $amenitiesArr) ?'selected':''}}>{{$amenity->title}}</option>
+                              @endforeach
+                          </optgroup>
+                          @endif
                         @endforeach
                     </select>
                   </div>

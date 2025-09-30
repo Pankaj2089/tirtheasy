@@ -4,6 +4,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Rooms;
 use App\Models\Hotels;
 use App\Models\AmenityCategories;
+use App\Models\Amenities;
 use App\Models\RoomImages;
 use App\Models\RoomPrices;
 use App\Models\Facilities;
@@ -30,9 +31,11 @@ class RoomsController extends Controller{
     private static $RoomImages;
     private static $RoomPrices;
     private static $Hotels;
+    private static $Amenities;
     public function __construct(){
         self::$Rooms = new Rooms();
         self::$AmenityCategories = new AmenityCategories();
+        self::$Amenities = new Amenities();
 		self::$TokenHelper = new TokenHelper();
 		self::$RoomImages = new RoomImages();
 		self::$RoomPrices = new RoomPrices();
@@ -140,6 +143,18 @@ class RoomsController extends Controller{
                 $setPriceData['no_of_rooms'] = $request->input('no_of_rooms');
 				$setPriceData['hotel_id'] = $request->input('hotel_id');
 				$setPriceData['room_id'] = $record->id;
+				if(is_array($request->input('amenities')) && count($request->input('amenities')) > 0){
+					$amenitiesArray = [];
+					$amenities = self::$Amenities->whereIn('id', $request->input('amenities'))->where('status',1)->orderBy('title', 'ASC')->get();
+					if(count($amenities) > 0){
+						foreach($amenities as $amenity){
+							$amenitiesArray[] = $amenity->title;
+						}
+						$setPriceData['amenities'] = json_encode($amenitiesArray);
+					}
+				}
+				
+				
 				self::$RoomPrices->CreateRecord($setPriceData);
 					
 				echo json_encode(array('heading' => 'Success', 'msg' => 'Record added successfully', 'recordID'=> $record->id));die;
@@ -231,6 +246,18 @@ class RoomsController extends Controller{
                 $setPriceData['no_of_guest'] = $request->input('no_of_guest');
                 $setPriceData['no_of_child'] = $request->input('no_of_child');
                 $setPriceData['no_of_rooms'] = $request->input('no_of_rooms');
+				
+				if(is_array($request->input('amenities')) && count($request->input('amenities')) > 0){
+					$amenitiesArray = [];
+					$amenities = self::$Amenities->whereIn('id', $request->input('amenities'))->where('status',1)->orderBy('title', 'ASC')->get();
+					if(count($amenities) > 0){
+						foreach($amenities as $amenity){
+							$amenitiesArray[] = $amenity->title;
+						}
+						$setPriceData['amenities'] = json_encode($amenitiesArray);
+					}
+				}
+
 				$setPriceData['hotel_id'] = $record->hotel_id;
 				$setPriceData['room_id'] = $row_id;
 				
