@@ -90,6 +90,29 @@ class PremiumFacilitiesController extends Controller{
 				$setData['icon'] = $request->input('icon');
 				$setData['description'] = $request->input('description');
 				$setData['facility_type'] = $request->input('facility_type');
+
+                # profile pic upload
+				if(isset($request->icon_image) && $request->icon_image != "undefined" && $request->icon_image->extension() != ""){
+					$validator = Validator::make($request->all(), [
+						'icon_image' => 'required|image|mimes:jpeg,png,jpg|max:1048'
+					]);
+					if($validator->fails()){
+						$errors = $validator->errors();
+						return json_encode(array('heading'=>'Error','msg'=>$errors->first('banner')));die;
+					}else{
+						$actual_image_name = time().'.'.$request->icon_image->extension();
+						$destination = base_path().'/public/img/premium-facilities/';
+						$request->icon_image->move($destination, $actual_image_name);
+                        $setData['icon_image'] = $actual_image_name;
+
+						if($request->input('old_icon') != "" && $request->input('row_id') > 0){
+							if(file_exists($destination.$request->input('old_icon'))){
+								unlink($destination.$request->input('old_icon'));
+							}
+						}
+					}
+				}
+
 				if($request->input('row_id') > 0){
 					self::$PremiumFacilities->where('id',$request->row_id)->update($setData);
 					echo json_encode(array('heading' => 'Success', 'msg' => 'Record updated successfully'));die;
@@ -117,6 +140,9 @@ class PremiumFacilitiesController extends Controller{
 			}
 		}else{
 			$record = self::$PremiumFacilities->where('id',$request->rowId)->first();
+            if(!empty($record->icon_image)){
+                $record->icon_image = getenv('APP_URL').'/public/img/premium-facilities/'.$record->icon_image;
+            }
 			echo json_encode(array('heading' => 'Success', 'record' => $record));die;
 		}
 	}

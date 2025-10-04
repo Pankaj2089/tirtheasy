@@ -322,6 +322,14 @@ class APIController extends Controller{
         $records = self::$PremiumFacilities->where('status', 1)
         ->where('facility_type', $request->input('facility_type'))
         ->orderBy('id', 'ASC')->limit(9)->get();
+
+        if(count($records) > 0){
+            foreach($records as $record){
+                if(isset($record->icon_image) && $record->icon_image != ""){
+                    $record->icon_image = self::$rootURL.'public/img/premium-facilities/'.$record->icon_image;
+                }
+            }
+        }
         return response()->json(['success'=>true, 'records' => $records],200);
     }
     
@@ -1189,7 +1197,7 @@ class APIController extends Controller{
     public function getMyBooking(Request $request){
 
         $records = ['upcoming' =>[], 'completed' =>[], 'canceled' => []];
-        $orders = self::$Orders->where('user_id',$GLOBALS['USER.ID'])->get();
+        $orders = self::$Orders->where('user_id',$GLOBALS['USER.ID'])->where('payment_status', 'SUCCESS')->get();
         $currentDate = date('Y-m-d');
         if(count($orders) > 0){
             foreach($orders as $record){

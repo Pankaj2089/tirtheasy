@@ -100,6 +100,14 @@
                   <textarea  style="height:100px;" id="description" name="description" class="form-control credit-card-mask" placeholder="Please enter description"></textarea>
                 </div>
               </div>
+               <div class="col-12 form-control-validation">
+                <label class="form-label w-100" for="title">Icon Image</label>
+                <div class="input-group-merge">
+                    <input type="file" id="icon_image" name="icon" class="form-control" accept="image/png, image/jpeg" />
+                    <input type="hidden" name="old_icon" id="old_icon" value="" />
+                </div>
+                <div id="oldImage"></div>
+              </div>
               <div class="col-12 text-center">
                 <button type="button" id="submitBtn" class="btn btn-primary me-3">Submit</button>
                 <button type="reset" class="btn btn-label-secondary btn-reset" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
@@ -125,7 +133,17 @@ $(document).ready(function(){
 	$('#submitBtn').click(function(e) {
 		$('#submitBtn').html('Processing...');
 		var form = $('#pageForm')[0];
-		var formData = new FormData(form);
+    var file = $('#icon_image')[0].files[0];
+
+    var formData = new FormData();
+    formData.append("icon_image", file);
+    formData.append("description", $('#description').val());
+    formData.append("title", $('#title').val());
+    formData.append("old_icon", $('#old_icon').val());
+    formData.append("facility_type", $('#facility_type').val());
+    formData.append("icon", $('#icon').val());
+    formData.append("row_id", $('#row_id').val());
+    
        $.ajax({
 			headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
 			type: 'POST',
@@ -169,6 +187,16 @@ function getDetails(rowId){
 				$('#icon').val(obj['record']['icon']);
 				$('#description').val(obj['record']['description']);
 				$('#facility_type').val(obj['record']['facility_type']);
+        var icon_image = obj['record']['icon_image'];
+        if(icon_image != '' && icon_image != null){
+          var image ='<div class="col-12 form-control-validation" style="margin-top:15px;">\
+          <label class="form-label w-100" for="title">Old Icon</label>\
+            <img src="'+icon_image+'" width="60px" />\
+          </div>';
+          $('#oldImage').html(image);
+      }else{
+        $('#oldImage').html("");
+      }
 				
 			}else{
 				swal("Error!", obj['msg'], "error");

@@ -19,7 +19,8 @@ class PremiumFacilities extends Authenticatable{
 		'icon',
 		'description',
 		'status',
-		'facility_type'
+		'facility_type',
+    'icon_image'
     ];
 
     /**
