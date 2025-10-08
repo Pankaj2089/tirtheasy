@@ -26,6 +26,7 @@ use App\Models\UserAccessCode;
 use App\Models\Contacts;
 use App\Models\Orders;
 use App\Models\Wishlists;
+use App\Models\Blogs;
 use App\RouteHelper;
 use App\Models\TokenHelper;
 use App\Models\Responses;
@@ -74,6 +75,7 @@ class APIController extends Controller{
     private static $ContactsModel;
     private static $Wishlists;
     private static $Faqs;
+    private static $Blogs;
     public function __construct(){
         self::$Banners = new Banners();
         self::$Promotions = new Promotions();
@@ -102,7 +104,8 @@ class APIController extends Controller{
         self::$ContactsModel = new Contacts();
         self::$Wishlists = new Wishlists();
         self::$Faqs = new Faqs();
-        self::$rootURL = "http://localhost/tirtheasy/";
+        self::$Blogs = new Blogs();
+        self::$rootURL = env('APP_URL');
     }
 
      # admin dashboard page
@@ -1241,5 +1244,71 @@ class APIController extends Controller{
             }
         }
         return response()->json(['success'=>true, 'records' => $faqs, 'categories' => $categories],200);
+    } 
+    
+    #get blogs
+    public function getBlogs(Request $request){
+        $blogs = [];
+        $records = self::$Blogs->where('status', 1)->orderBy('category', 'ASC')->get();
+        $categories = ["Most Popular","Best Accommodation","Events","Darshan Stories"];
+        if(count($records) > 0){
+            foreach($records as $record){
+                if(isset($record->image) && $record->image != ""){
+                    $record->image = self::$rootURL.'public/img/blogs/'.$record->image;
+                }
+                if(isset($record->blog_date) && $record->blog_date != ""){
+                    $record->blog_date = date('d F Y',strtotime($record->blog_date));
+                }
+                $record->user_name = "Tirtheasy";
+                $blogs[$record->category][] = $record; 
+            }
+        }
+
+        $most_popular_posts = self::$Blogs->where('status', 1)->where('popular_post', 1)->orderBy('category', 'ASC')->limit(5)->get();
+       
+        return response()->json(['success'=>true, 'records' => $blogs, 'categories' => $categories ,'most_popular_posts' => $most_popular_posts],200);
+    } 
+
+    #get blog details api
+    public function getBlogData(Request $request, $slug){
+        $record = self::$Blogs->where('status', 1)->where('slug', $slug)->orderBy('id', 'ASC')->first();
+        if(isset($record->id)){
+           if(isset($record->image) && $record->image != ""){
+                $record->image = self::$rootURL.'public/img/blogs/'.$record->image;
+            }
+            if(isset($record->blog_date) && $record->blog_date != ""){
+                $record->blog_date = date('d F Y',strtotime($record->blog_date));
+            }
+            $record->user_name = "Tirtheasy";
+            $most_popular_posts = self::$Blogs->where('status', 1)->where('popular_post', 1)->where('id','!=', $record->id)->orderBy('category', 'ASC')->limit(5)->get();
+
+            if(count($most_popular_posts) > 0){
+                foreach($most_popular_posts as $most_popular_post){
+                    if(isset($most_popular_post->image) && $most_popular_post->image != ""){
+                        $most_popular_post->image = self::$rootURL.'public/img/blogs/'.$most_popular_post->image;
+                    }
+                    if(isset($most_popular_post->blog_date) && $most_popular_post->blog_date != ""){
+                        $most_popular_post->blog_date = date('d F Y',strtotime($most_popular_post->blog_date));
+                    }
+                }
+            }
+            $record->most_popular_posts = $most_popular_posts;
+
+            $related_posts = self::$Blogs->where('status', 1)->where('category', $record->category)->where('id','!=', $record->id)->orderBy('category', 'ASC')->limit(5)->get();
+
+            if(count($related_posts) > 0){
+                foreach($related_posts as $related_post){
+                    if(isset($related_post->image) && $related_post->image != ""){
+                        $related_post->image = self::$rootURL.'public/img/blogs/'.$related_post->image;
+                    }
+                    if(isset($related_post->blog_date) && $related_post->blog_date != ""){
+                        $related_post->blog_date = date('d F Y',strtotime($related_post->blog_date));
+                    }
+                }
+            }
+            $record->related_posts = $related_posts;
+
+        }
+        return response()->json(['success'=>true, 'record' => $record],200);
     } 
 }

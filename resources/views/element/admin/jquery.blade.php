@@ -71,6 +71,43 @@ function changeProductStatus(status,table,rowID){
 		});	
 	}	
 }
+function changePopularPostStatus(table,rowID){
+	var status = $('#popular_post_value_'+rowID).val();
+	$.ajax({
+			type: 'POST',
+			url: "{{ url('/panel/change-popular-post-status') }}",
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+			data: {table:table,rowID:rowID,status:status},
+			success: function(response){
+				if(response == 'Success'){
+					if(status == 1){
+						$('#popular_post_value_'+rowID).val(2);
+						$('#popular_post_'+rowID).removeClass('bg-label-success').addClass('bg-label-danger').html('In-Active');
+					}else{
+						$('#popular_post_value_'+rowID).val(1);
+						$('#popular_post_'+rowID).removeClass('bg-label-danger').addClass('bg-label-success').html('Active');
+					}
+					//filterData('simple');
+				}else if(response == 'SessionExpire'){
+					alert('Unauthorized User.'); return false;
+				}else if(response == 'InvalidData'){
+                    swal({
+                        title: "Oops!",
+                        html: 'Invalid Data.',
+                        type: "error",
+                        timer: 3000
+                    });
+				}else {
+                    swal({
+                        title: "Oops!",
+                        text: response,
+                        type: "warning",
+                        timer: 3000
+                    });
+                }
+			}
+		});
+}
 function changeBrowseTopStatus(table,rowID){
 	var status = $('#browse_top_value_'+rowID).val();
 	$.ajax({

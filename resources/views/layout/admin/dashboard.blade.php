@@ -58,7 +58,8 @@ $siteUrl = env('APP_URL');
     <link rel="stylesheet" href="{{$siteUrl}}public/admin/vendor/css/pages/cards-advance.css" />
     <link href="{{ asset('public/css/sweet-alert.css') }}" rel="stylesheet" />
     
-    <script src="{{$siteUrl}}public/admin/vendor/libs/jquery/jquery.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://code.jquery.com/jquery-migrate-3.4.1.min.js"></script>
 
     <!-- Helpers -->
     <script src="{{$siteUrl}}public/admin/vendor/js/helpers.js"></script>
@@ -70,13 +71,23 @@ $siteUrl = env('APP_URL');
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
 
     <script src="{{$siteUrl}}public/admin/js/config.js"></script>
+    <script>
+if (typeof jQuery.fn.size !== 'function') {
+    jQuery.fn.size = function() {
+        return this.length;
+    }
+}
+</script>
    <script src="https://cdn.jsdelivr.net/npm/redactor-html@1.0.0/redactor.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/redactor-html@1.0.0/redactor.min.css" rel="stylesheet">
 
     <script>
+      var addUrl = "{{route('admin.upload_image')}}";
       $(document).ready(function() {
         $('.editor').redactor({
-          maxHeight: 400
+          maxHeight: 400,
+          imageUpload: "/tirtheasy/panel/upload_image",
+          uploadFields: { _token: '{{ csrf_token() }}' }
         });
       });
     </script>

@@ -39,6 +39,8 @@ Route::prefix('api')->group(function () {
 	Route::post('/save-contact-us', [APIController::class, 'saveContactUs']);
 	Route::post('/save-booking-enquiry', [APIController::class, 'saveBookingEnquiry']);
 	Route::get('/get-faqs', [APIController::class, 'getFaqs']);
+	Route::get('/get-blogs', [APIController::class, 'getBlogs']);
+	Route::get('/get-blog-data/{slug}', [APIController::class, 'getBlogData']);
 
 	
 	Route::get('/get-user-details', [APIController::class, 'getProfile'])->middleware(RequiredParameters::class);
@@ -47,4 +49,5 @@ Route::prefix('api')->group(function () {
 	Route::post('/get-is-wishlist', [APIController::class, 'getIsWishlist'])->middleware(RequiredParameters::class);
 	Route::get('/my-wishlist', [APIController::class, 'myWishlist'])->middleware(RequiredParameters::class);
 	Route::get('/get-my-booking', [APIController::class, 'getMyBooking'])->middleware(RequiredParameters::class);
+	
 });

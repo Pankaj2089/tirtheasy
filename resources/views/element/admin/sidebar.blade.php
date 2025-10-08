@@ -44,7 +44,7 @@
         @php
         $generalManagerActive = 
         $statesActive = $citiesActive = $innerPagesActive = $bannerActive = $promotionActive = $popularDestinationActive = $premiumFacilitiesActive =
-        $premiumFaqsActive = false;         
+        $blogsActive = $premiumFaqsActive = false;         
         if($action =='admin.states'){
           $generalManagerActive = $statesActive = true;
         }  
@@ -69,6 +69,9 @@
         if($action =='admin.faqs'){
           $generalManagerActive = $premiumFaqsActive = true;
         }
+        if($action =='admin.blogs' || $action =='admin.add-blog' || $action =='admin.edit-blog'){
+          $generalManagerActive = $blogsActive = true;
+        } 
         @endphp
         <li class="menu-item  {{ $generalManagerActive ? 'active open':'' }}">
           <a href="javascript:void(0);" class="menu-link menu-toggle"> 
@@ -119,6 +122,11 @@
             <li class="menu-item  {{ $premiumFaqsActive ? 'active':'' }}" >
               <a href="{{route('admin.faqs')}}" class="menu-link">
                 <div data-i18n="Faqs">Faqs</div>
+              </a>
+            </li>
+            <li class="menu-item  {{ $blogsActive ? 'active':'' }}" >
+              <a href="{{route('admin.blogs')}}" class="menu-link">
+                <div data-i18n="Blogs">Blogs</div>
               </a>
             </li>
           </ul>

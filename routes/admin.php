@@ -27,6 +27,7 @@ use App\Http\Controllers\Admin\CouponCodesController;
 use App\Http\Controllers\Admin\FaqsController;
 use App\Http\Controllers\Admin\ContactUsController;
 use App\Http\Controllers\Admin\OrdersController;
+use App\Http\Controllers\Admin\BlogsController;
 
 Route::prefix('panel')->group(function(){
 	
@@ -66,8 +67,10 @@ Route::prefix('panel')->group(function(){
 	#ajax
 	Route::post('/change-status',[AjaxController::class, 'changeStatus'])->name('admin.change-status');
 	Route::post('/change-browse-top-status',[AjaxController::class, 'changeBrowseTopStatus'])->name('admin.change-browse-top-status');
+	Route::post('/change-popular-post-status',[AjaxController::class, 'changePopularPostStatus'])->name('admin.change-popular-post-status');
     Route::post('/delete-record',[AjaxController::class, 'deleteRecord'])->name('admin.delete-record');
     Route::post('/get-cities',[AjaxController::class, 'getCities'])->name('admin.get-cities');
+    Route::post('/upload_image',[AjaxController::class, 'uploadImage'])->name('admin.upload_image');
 	
 	#brands
     Route::get('/brands',[BrandsController::class, 'getList'])->name('admin.brands');
@@ -204,6 +207,12 @@ Route::prefix('panel')->group(function(){
 	Route::get('/orders',[OrdersController::class, 'getList'])->name('admin.orders');
     Route::any('/orders_paginate',[OrdersController::class, 'listPaginate'])->name('admin.orders_paginate');
     Route::any('/view-order/{row_id}',[OrdersController::class, 'viewOrderPage'])->name('admin.view-order');
+	
+	#blogs
+    Route::get('/blogs',[BlogsController::class, 'getList'])->name('admin.blogs');
+    Route::any('/blogs_paginate',[BlogsController::class, 'listPaginate'])->name('admin.blogs_paginate');
+	Route::any('/edit-blog/{row_id}',[BlogsController::class, 'editPage'])->name('admin.edit-blog');
+	Route::any('/add-blog',[BlogsController::class, 'addPage'])->name('admin.add-blog');
 	
 });
 

@@ -66,6 +66,35 @@ class AjaxController extends Controller
 			echo 'InvalidData'; die;
 		}
     }
+	public function changePopularPostStatus(Request $request){
+		if(!$request->session()->has('admin_email')){echo 'SessionExpire'; die;}
+		$tableName = $request->input('table');
+		$rowID = $request->input('rowID');
+		$status = $request->input('status');
+		if($tableName != "" && $rowID != "" && $status != "" && is_numeric($rowID) && is_numeric($status)){
+
+            $newStatus = $status == 1 ? 2 : 1;
+			DB::table($tableName)->where(array('id' => $rowID))->update(array('popular_post' => $newStatus));
+			echo 'Success';die;
+		}else{
+			echo 'InvalidData'; die;
+		}
+    }
+
+	public function uploadImage(Request $request)
+    {
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+			$destinationPath = public_path('img');
+            $file->move($destinationPath, $filename);
+            return response()->json([
+                'filelink' => asset('public/img/' . $filename)
+            ]);
+        }
+		
+        return response()->json(['error' => 'No file uploaded'], 400);
+    }
 	
 	public function changeBrowseTopStatus(Request $request){
 		if(!$request->session()->has('admin_email')){echo 'SessionExpire'; die;}
