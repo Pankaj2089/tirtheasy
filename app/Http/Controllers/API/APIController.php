@@ -442,12 +442,15 @@ class APIController extends Controller{
     
     #get cities
     public function getCities(Request $request){
-        $recQry = self::$Cities->where('status', 1);
+        $recQry = self::$Cities->where('cities.status', 1)
+        ->join('states', 'cities.state_id', '=', 'states.id')
+        ->where('cities.status', 1)
+        ->select('cities.*');
         if($request->input('keywords')){
             $keywords = $request->input('keywords');
-            $recQry->where('title','like', '%'.$keywords.'%');
+            $recQry->where('cities.title','like', '%'.$keywords.'%')->orWhere('states.title','like', '%'.$keywords.'%');
         }
-        $records = $recQry->orderBy('title', 'ASC')
+        $records = $recQry->orderBy('cities.title', 'ASC')
         ->limit(20)
         ->get();
 
