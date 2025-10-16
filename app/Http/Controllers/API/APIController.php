@@ -336,6 +336,13 @@ class APIController extends Controller{
         return response()->json(['success'=>true, 'records' => $records],200);
     }
     
+    #get facilities list api
+    public function getFacilities(Request $request){
+        $records = self::$Facilities->where('status', 1)
+        ->orderBy('id', 'ASC')->inRandomOrder()->limit(9)->get();
+        return response()->json(['success'=>true, 'records' => $records],200);
+    }
+
     #save news letters api
     public function saveNewsletter(Request $request){
         if($request->input()){
@@ -410,6 +417,23 @@ class APIController extends Controller{
         }else{
             $recQry->orderBy('hotel.title', 'ASC');
         }
+
+        if ($request->input('facilities')) {
+    $facilities = $request->input('facilities'); // e.g. [55]
+
+    $recQry->where(function ($q) use ($facilities) {
+        foreach ($facilities as $facilityId) {
+            $q->orWhere(function ($inner) use ($facilityId) {
+                $inner->whereRaw('JSON_VALID(hotel.facilities)')
+                      ->where(function ($w) use ($facilityId) {
+                          // ✅ Match both string and numeric forms
+                          $w->whereRaw('JSON_CONTAINS(hotel.facilities, ?)', [json_encode((string)$facilityId)])
+                            ->orWhereRaw('JSON_CONTAINS(hotel.facilities, ?)', [json_encode((int)$facilityId)]);
+                      });
+            });
+        }
+    });
+}
 
         $recQry->where('hotel.status', 1)->groupBy('hotel.id');
 

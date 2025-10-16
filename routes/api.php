@@ -9,6 +9,7 @@ Route::prefix('api')->group(function () {
 	Route::post('/promotions',[APIController::class, 'getPromotionsList'])->name('promotions');
 	Route::post('/popular-destinations',[APIController::class, 'getPopularDestinationsList'])->name('popular-destinations');
 	Route::post('/premium-facilities',[APIController::class, 'getPremiumFacilities'])->name('premium-facilities');
+	Route::post('/facilities',[APIController::class, 'getFacilities'])->name('facilities');
 	Route::get('/hotels/{type}',[APIController::class, 'getHotelsList'])->name('hotels');
 	Route::post('/save-newsletter',[APIController::class, 'saveNewsletter']);
 	Route::get('/get-page-data/{id}',[APIController::class, 'getStaticPage']);
