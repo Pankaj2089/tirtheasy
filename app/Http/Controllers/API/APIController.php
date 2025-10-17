@@ -469,7 +469,7 @@ class APIController extends Controller{
         $recQry = self::$Cities->where('cities.status', 1)
         ->join('states', 'cities.state_id', '=', 'states.id')
         ->where('cities.status', 1)
-        ->select('cities.*');
+        ->select('cities.*', 'states.title as state_name');
         if($request->input('keywords')){
             $keywords = $request->input('keywords');
             $recQry->where('cities.title','like', '%'.$keywords.'%')->orWhere('states.title','like', '%'.$keywords.'%');
