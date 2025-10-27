@@ -37,6 +37,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use App\Models\Languages;
 use App\Models\CouponCodes;
+use App\Models\AddDharmasalaInquiries;
 use Session;
 use Validator;
 use Mail;
@@ -76,6 +77,7 @@ class APIController extends Controller{
     private static $Wishlists;
     private static $Faqs;
     private static $Blogs;
+    private static $AddDharmasalaInquiries;
     public function __construct(){
         self::$Banners = new Banners();
         self::$Promotions = new Promotions();
@@ -105,6 +107,7 @@ class APIController extends Controller{
         self::$Wishlists = new Wishlists();
         self::$Faqs = new Faqs();
         self::$Blogs = new Blogs();
+        self::$AddDharmasalaInquiries = new AddDharmasalaInquiries();
         self::$rootURL = env('APP_URL');
     }
 
@@ -1338,4 +1341,18 @@ class APIController extends Controller{
         }
         return response()->json(['success'=>true, 'record' => $record],200);
     } 
+
+    public function addDharmasala(Request $request){
+		
+        $setData['name'] = $request->input('name');
+        $setData['mobile'] = $request->input('mobile');
+        $setData['email'] = $request->input('email');
+        $setData['state'] = $request->input('state');
+        $setData['city'] = $request->input('city');
+        $setData['owner_name'] = $request->input('owner_name');
+        self::$AddDharmasalaInquiries->CreateRecord($setData);
+
+        return response()->json(['success'=>true,'message' => 'Information sent successfully'],200);
+		
+	}
 }

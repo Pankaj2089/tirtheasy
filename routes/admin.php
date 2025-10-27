@@ -203,6 +203,10 @@ Route::prefix('panel')->group(function(){
     Route::any('/booking_enquiries_paginate',[ContactUsController::class, 'listBookingPaginate'])->name('admin.booking_enquiries_paginate');
     Route::any('/view-booking-enquiries/{row_id}',[ContactUsController::class, 'viewBookingEnquiryPage'])->name('admin.view-booking-enquiries');
 
+	#add dharmasala enquiries
+	Route::get('/add-dharmasala-enquiries',[ContactUsController::class, 'getAddDharmasalaEnquiries'])->name('admin.add-dharmasala-enquiries');
+    Route::any('/add_dharmasala_enquiries_paginate',[ContactUsController::class, 'listAddDharmasalaEnquiriesPaginate'])->name('admin.add_dharmasala_enquiries_paginate');
+
 	#orders
 	Route::get('/orders',[OrdersController::class, 'getList'])->name('admin.orders');
     Route::any('/orders_paginate',[OrdersController::class, 'listPaginate'])->name('admin.orders_paginate');

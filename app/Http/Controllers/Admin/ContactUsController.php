@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Contacts;
+use App\Models\AddDharmasalaInquiries;
 use App\RouteHelper;
 use App\Models\TokenHelper;
 use App\Models\Responses;
@@ -22,9 +23,11 @@ class ContactUsController extends Controller{
 
     private static $Contacts;
     private static $TokenHelper;
+    private static $AddDharmasalaInquiries;
 
     public function __construct(){
         self::$Contacts = new Contacts();
+        self::$AddDharmasalaInquiries = new AddDharmasalaInquiries();
 		self::$TokenHelper = new TokenHelper();
     }
 
@@ -54,7 +57,7 @@ class ContactUsController extends Controller{
     }
 
 
-     #admin dashboard page
+    #admin dashboard page
     public function getBookingList(Request $request){
         if(!$request->session()->has('admin_email')){return redirect('/panel/');}
         return view('/panel/contacts/booking_index');
@@ -82,5 +85,24 @@ class ContactUsController extends Controller{
 		}else{
 			return redirect('/panel/booking-enquiries');
 		}
+    }
+    
+    #admin dashboard page
+    public function getAddDharmasalaEnquiries(Request $request){
+        if(!$request->session()->has('admin_email')){return redirect('/panel/');}
+        return view('/panel/contacts/add_dharmasala_index');
+    }
+
+    public function listAddDharmasalaEnquiriesPaginate(Request $request){
+        if(!$request->session()->has('admin_email')){return redirect('/panel/');}
+        $query = self::$AddDharmasalaInquiries;
+        
+        $SearchKeyword = $request->input('search_title');
+        if(!empty($SearchKeyword)) {
+            $query->where('name', 'like', '%'.$SearchKeyword.'%')->orWhere('email', 'like', '%'.$SearchKeyword.'%')->orWhere('mobile', $SearchKeyword);
+        }
+        $records = $query->orderBy('id', 'DESC')->paginate(20);
+      
+        return view('/panel/contacts/add_dharmasala_paginate', compact('records'));
     }
 }
