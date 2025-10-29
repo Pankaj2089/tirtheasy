@@ -43,6 +43,7 @@ Route::prefix('api')->group(function () {
 	Route::get('/get-blogs', [APIController::class, 'getBlogs']);
 	Route::get('/get-blog-data/{slug}', [APIController::class, 'getBlogData']);
 	Route::post('/add-dharmasala', [APIController::class, 'addDharmasala']);
+	Route::post('/save-group-inquiry', [APIController::class, 'saveGroupInquiry']);
 
 	
 	Route::get('/get-user-details', [APIController::class, 'getProfile'])->middleware(RequiredParameters::class);

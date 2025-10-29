@@ -16,7 +16,7 @@ $siteUrl = env('APP_URL');
     <tr>
         <td>{{$sr}}.</td>
         <td>@if($row->image != '')<img src="{{$siteUrl}}/public/img/blogs/{{$row->image}}" width="100px" />@endif</td>
-        <td>{{$row->title}}</td>
+        <td title="{{$row->title}}">{{ \Illuminate\Support\Str::limit($row->title, 30, ' ...') }}</td>
         <td>{{$row->category}}</td>
         <td>
         @php

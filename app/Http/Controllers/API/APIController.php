@@ -38,6 +38,7 @@ use Illuminate\Support\Str;
 use App\Models\Languages;
 use App\Models\CouponCodes;
 use App\Models\AddDharmasalaInquiries;
+use App\Models\GroupInquiries;
 use Session;
 use Validator;
 use Mail;
@@ -78,6 +79,7 @@ class APIController extends Controller{
     private static $Faqs;
     private static $Blogs;
     private static $AddDharmasalaInquiries;
+    private static $GroupInquiriesModel;
     public function __construct(){
         self::$Banners = new Banners();
         self::$Promotions = new Promotions();
@@ -108,6 +110,7 @@ class APIController extends Controller{
         self::$Faqs = new Faqs();
         self::$Blogs = new Blogs();
         self::$AddDharmasalaInquiries = new AddDharmasalaInquiries();
+        self::$GroupInquiriesModel = new GroupInquiries();
         self::$rootURL = env('APP_URL');
     }
 
@@ -1354,5 +1357,59 @@ class APIController extends Controller{
 
         return response()->json(['success'=>true,'message' => 'Information sent successfully'],200);
 		
+	}
+    
+    #saveGroupInquiry
+    public function saveGroupInquiry(Request $request){
+
+        if($request->input()){
+            $validator = Validator::make($request->all(), [
+				'booking_name' => 'required',  
+				'booking_mobile' => 'required|min:10|numeric',
+                'booking_total_guest' =>'required|min:1|numeric',
+			], [
+                'booking_name.required' => 'Please enter your full name.',
+                'booking_mobile.required' => 'Please enter your mobile number.',
+                'booking_mobile.min' => 'Please enter valid mobile number',
+                'booking_mobile.numeric' => 'Please enter valid mobile number',
+                'booking_total_guest.required' => 'Please enter number of guest.',
+                'booking_total_guest.min' => 'Please enter valid  number of guest',
+                'booking_total_guest.numeric' => 'Please enter valid number of guest'
+			]);
+            if($validator->fails()){
+                $errors = $validator->errors();
+                if($errors->first('booking_name')){
+                    return response()->json(['success'=>false,'message' => $errors->first('booking_name')],200);
+                }
+                if($errors->first('email')){
+                    return response()->json(['success'=>false,'message' => $errors->first('booking_email')],200);
+                }
+                if($errors->first('booking_mobile')){
+                    return response()->json(['success'=>false,'message' => $errors->first('booking_mobile')],200);
+                }
+                if($errors->first('booking_total_guest')){
+                    return response()->json(['success'=>false,'message' => $errors->first('booking_total_guest')],200);
+                }
+                if($errors->first('booking_message')){
+                    return response()->json(['success'=>false,'message' => $errors->first('booking_message')],200);
+                }
+                
+            } else {
+
+                $setUserData['name'] = $request->input('booking_name');
+                $setUserData['contact'] = $request->input('booking_mobile');
+                $setUserData['booking_alternative_mobile'] = $request->input('booking_alternative_mobile');
+                $setUserData['booking_total_guest'] = $request->input('booking_total_guest');
+                $setUserData['booking_total_room'] = $request->input('booking_total_room');
+                $setUserData['estimate_budget'] = $request->input('estimate_budget');
+                $setUserData['destinations'] = "";
+                $setUserData['booking_room_type'] =  $request->input('booking_room_type_1').' - '.$request->input('booking_room_type_2').' ('.$request->input('booking_room_type_3').')';
+                if($request->input('destinations') && count($request->input('destinations')) > 0){
+                    $setUserData['destinations'] = json_encode($request->input('destinations'));
+                }
+                self::$GroupInquiriesModel->CreateRecord($setUserData);
+                return response()->json(['success'=>true],200);
+            }
+        }
 	}
 }

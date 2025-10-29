@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Contacts;
+use App\Models\GroupInquiries;
 use App\Models\AddDharmasalaInquiries;
 use App\RouteHelper;
 use App\Models\TokenHelper;
@@ -23,12 +24,14 @@ class ContactUsController extends Controller{
 
     private static $Contacts;
     private static $TokenHelper;
+    private static $GroupInquiries;
     private static $AddDharmasalaInquiries;
 
     public function __construct(){
         self::$Contacts = new Contacts();
         self::$AddDharmasalaInquiries = new AddDharmasalaInquiries();
 		self::$TokenHelper = new TokenHelper();
+		self::$GroupInquiries = new GroupInquiries();
     }
 
     #admin dashboard page
@@ -105,4 +108,36 @@ class ContactUsController extends Controller{
       
         return view('/panel/contacts/add_dharmasala_paginate', compact('records'));
     }
+
+
+     #admin dashboard page
+    public function getGroupList(Request $request){
+        if(!$request->session()->has('admin_email')){return redirect('/panel/');}
+        return view('/panel/contacts/group_index');
+    }
+
+    public function listGroupPaginate(Request $request){
+        if(!$request->session()->has('admin_email')){return redirect('/panel/');}
+        $query = self::$GroupInquiries->where('status', '!=', 3);
+        
+        $SearchKeyword = $request->input('search_title');
+        if(!empty($SearchKeyword)) {
+            $query->where('name', 'like', '%'.$SearchKeyword.'%')->orWhere('contact', $SearchKeyword);
+        }
+        $records = $query->orderBy('id', 'DESC')->paginate(20);
+      
+        return view('/panel/contacts/group_paginate', compact('records'));
+    }
+
+    #editPage
+    public function viewGroupEnquiryPage(Request $request,$row_id){
+        if(!$request->session()->has('admin_email')){return redirect('/panel/');}
+		if($row_id > 0){
+			$record = self::$GroupInquiries->where('id',$row_id)->first();
+			return view('/panel/contacts/view-group-enquiry-page',compact(['record']));
+		}else{
+			return redirect('/panel/group-enquiries');
+		}
+    }
+
 }

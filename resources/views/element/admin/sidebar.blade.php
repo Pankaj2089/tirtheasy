@@ -210,7 +210,7 @@
         </li>
 
          @php                        
-         $cmanagerActive = $contactUs =  $bookingEnquiries = $addDharmasala = false;
+         $cmanagerActive = $contactUs =  $bookingEnquiries = $addDharmasala = $groupInquiries = false;
        
          if($action =='admin.contact-us'){
          	$cmanagerActive = $contactUs = true;
@@ -220,6 +220,10 @@
          }
          if($action == 'add-dharmasala-enquiries' ){
          	$cmanagerActive = $addDharmasala = true;
+         }
+         
+         if($action =='admin.group-enquiries' || $action =='view-group-enquiries'){
+         	$cmanagerActive = $groupInquiries = true;
          }
          @endphp
          <li class="menu-item  {{ $cmanagerActive ? 'active open':'' }}">
@@ -236,6 +240,9 @@
               </li>
               <li class="menu-item  {{ $addDharmasala ? 'active':'' }}">
                 <a href="{{route('admin.add-dharmasala-enquiries')}}" class="menu-link">Add Dharmasala</a>
+              </li>
+              <li class="menu-item  {{ $groupInquiries ? 'active':'' }}">
+                <a href="{{route('admin.group-enquiries')}}" class="menu-link">Group Inquiries</a>
               </li>
             </ul>
         </li>

@@ -69,13 +69,15 @@ role="tab" aria-selected="false"> <span class="icon-base ti tabler-user-cog icon
                     <input type="text" id="seo_title" name="seo_title" class="form-control"/>
                   </div>
                   <div class="col-md-12">
+                    <label class="form-label" for="seo_keyword">SEO Keywords</label>
+                    <input type="text" class="form-control" id="seo_keyword" name="seo_keyword" />
+                  </div>
+                  
+                  <div class="col-md-12">
                     <label class="form-label" for="seo_description">SEO Description</label>
                     <textarea class="form-control" id="seo_description" name="seo_description"></textarea>
                   </div>
-                  <div class="col-md-12">
-                    <label class="form-label" for="seo_keyword">SEO Keywords</label>
-                    <textarea class="form-control" id="seo_keyword" name="seo_keyword"></textarea>
-                  </div>
+                  
                   
                 </div>
             </div>

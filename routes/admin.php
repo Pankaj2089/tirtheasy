@@ -217,6 +217,11 @@ Route::prefix('panel')->group(function(){
     Route::any('/blogs_paginate',[BlogsController::class, 'listPaginate'])->name('admin.blogs_paginate');
 	Route::any('/edit-blog/{row_id}',[BlogsController::class, 'editPage'])->name('admin.edit-blog');
 	Route::any('/add-blog',[BlogsController::class, 'addPage'])->name('admin.add-blog');
+
+	#group enquiries
+	Route::get('/group-enquiries',[ContactUsController::class, 'getGroupList'])->name('admin.group-enquiries');
+    Route::any('/group_enquiries_paginate',[ContactUsController::class, 'listGroupPaginate'])->name('admin.group');
+    Route::any('/view-group-enquiries/{row_id}',[ContactUsController::class, 'viewGroupEnquiryPage'])->name('admin.view-group-enquiries');
 	
 });
 
