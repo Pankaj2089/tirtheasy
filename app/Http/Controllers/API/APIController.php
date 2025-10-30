@@ -27,6 +27,7 @@ use App\Models\Contacts;
 use App\Models\Orders;
 use App\Models\Wishlists;
 use App\Models\Blogs;
+use App\Models\BlogComments;
 use App\RouteHelper;
 use App\Models\TokenHelper;
 use App\Models\Responses;
@@ -80,6 +81,7 @@ class APIController extends Controller{
     private static $Blogs;
     private static $AddDharmasalaInquiries;
     private static $GroupInquiriesModel;
+    private static $BlogComments;
     public function __construct(){
         self::$Banners = new Banners();
         self::$Promotions = new Promotions();
@@ -111,6 +113,7 @@ class APIController extends Controller{
         self::$Blogs = new Blogs();
         self::$AddDharmasalaInquiries = new AddDharmasalaInquiries();
         self::$GroupInquiriesModel = new GroupInquiries();
+        self::$BlogComments = new BlogComments();
         self::$rootURL = env('APP_URL');
     }
 
@@ -1341,6 +1344,9 @@ class APIController extends Controller{
             }
             $record->related_posts = $related_posts;
 
+            self::$Blogs->where('id', $record->id)->increment('total_views');
+
+
         }
         return response()->json(['success'=>true, 'record' => $record],200);
     } 
@@ -1412,4 +1418,57 @@ class APIController extends Controller{
             }
         }
 	}
+    
+    #save blog comments
+    public function saveBlogComments(Request $request){
+
+        if($request->input()){
+            $validator = Validator::make($request->all(), [
+				'blog_id' => 'required|numeric',
+                'user_id' => 'required|numeric',
+				'name' => 'required',  
+                'email' => 'required|email',
+                'comment' => 'required',
+			], [
+                'blog_id.required' => 'Invalid request',
+                'name.required' => 'Please enter your full name.',
+                'email.required' => 'Please enter your email address.',
+                'email.email' => 'Please enter valid email address.',
+                'comment.required' => 'Please enter comments',
+			]);
+            if($validator->fails()){
+                $errors = $validator->errors();
+                if($errors->first('blog_id')){
+                    return response()->json(['success'=>false,'message' => $errors->first('blog_id')],200);
+                }
+                if($errors->first('user_id')){
+                    return response()->json(['success'=>false,'message' => $errors->first('user_id')],200);
+                }
+                if($errors->first('name')){
+                    return response()->json(['success'=>false,'message' => $errors->first('name')],200);
+                }
+                if($errors->first('email')){
+                    return response()->json(['success'=>false,'message' => $errors->first('email')],200);
+                }
+                if($errors->first('comment')){
+                    return response()->json(['success'=>false,'message' => $errors->first('comment')],200);
+                }
+                
+            } else {
+                $setUserData['blog_id'] = $request->input('blog_id');
+                $setUserData['user_id'] = $request->input('user_id');
+                $setUserData['user_name'] = $request->input('name');
+                $setUserData['user_email'] = $request->input('email');
+                $setUserData['comments'] = $request->input('comment');
+                self::$BlogComments->CreateRecord($setUserData);
+                return response()->json(['success'=>true],200);
+            }
+        }
+	}
+    
+    #get blog comments
+    public function getBlogComments(Request $request){
+        $records = self::$BlogComments->where('blog_id', $request->input('blog_id'))->orderBy('id', 'DESC')->get();
+        return response()->json(['success'=>true, 'records' => $records],200);
+    }
 }
