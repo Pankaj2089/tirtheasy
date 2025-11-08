@@ -54,6 +54,6 @@ Route::prefix('api')->group(function () {
 	Route::get('/get-my-booking', [APIController::class, 'getMyBooking'])->middleware(RequiredParameters::class);
 	Route::post('/save-blog-comments', [APIController::class, 'saveBlogComments'])->middleware(RequiredParameters::class);
 	Route::post('/get-blog-comments', [APIController::class, 'getBlogComments'])->middleware(RequiredParameters::class);
-	
+	Route::get('/view-blog/{slug}', [APIController::class, 'viewBlogData'])->middleware(RequiredParameters::class);
 	
 });

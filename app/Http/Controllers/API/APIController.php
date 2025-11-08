@@ -1307,7 +1307,16 @@ class APIController extends Controller{
         return response()->json(['success'=>true, 'records' => $blogs, 'categories' => $categories ,'most_popular_posts' => $most_popular_posts],200);
     } 
 
-    #get blog details api
+    #view blog total views api
+    public function viewBlogData(Request $request, $slug){
+        $record = self::$Blogs->where('status', 1)->where('slug', $slug)->orderBy('id', 'ASC')->first();
+        if(isset($record->id)){
+            self::$Blogs->where('id', $record->id)->increment('total_views');
+        }
+        return response()->json(['success'=>true, 'record' => $record],200);
+    }
+
+     #get blog details api
     public function getBlogData(Request $request, $slug){
         $record = self::$Blogs->where('status', 1)->where('slug', $slug)->orderBy('id', 'ASC')->first();
         if(isset($record->id)){
@@ -1345,9 +1354,6 @@ class APIController extends Controller{
                 }
             }
             $record->related_posts = $related_posts;
-
-            self::$Blogs->where('id', $record->id)->increment('total_views');
-
 
         }
         return response()->json(['success'=>true, 'record' => $record],200);
