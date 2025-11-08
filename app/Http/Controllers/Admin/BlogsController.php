@@ -158,6 +158,7 @@ class BlogsController extends Controller{
 				$setData['seo_title'] = $request->input('seo_title');
 				$setData['seo_description'] = $request->input('seo_description');
 				$setData['seo_keyword'] = $request->input('seo_keyword');
+				$setData['image'] = $actual_image_name;
 				$setData['robot_tags'] = 'index,follow';
 				$record = self::$Blogs->where('id',$row_id)->update($setData);				
 				echo json_encode(array('heading' => 'Success', 'msg' => 'Record updated successfully'));die;

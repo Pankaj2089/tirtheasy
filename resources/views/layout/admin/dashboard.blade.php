@@ -86,7 +86,7 @@ if (typeof jQuery.fn.size !== 'function') {
       $(document).ready(function() {
         $('.editor').redactor({
           maxHeight: 400,
-          imageUpload: "/tirtheasy/panel/upload_image",
+          imageUpload: "/panel/upload_image",
           uploadFields: { _token: '{{ csrf_token() }}' }
         });
       });

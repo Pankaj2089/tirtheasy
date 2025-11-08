@@ -235,11 +235,11 @@ class APIController extends Controller{
     public function userRegister(Request $request){
 
 		$validator = Validator::make($request->all(), [
-			'email' => 'required|email',
+			//'email' => 'required|email',
 			'name' => 'required',
 		],[
-			'email.required' => 'Please enter your email address.',
-			'email.email' => 'Please enter valid email address.',
+			// 'email.required' => 'Please enter your email address.',
+			// 'email.email' => 'Please enter valid email address.',
 			'name.required' => 'Please enter your name.'
 		]);
 
@@ -528,12 +528,14 @@ class APIController extends Controller{
     
     #get state cities
     public function getStateCities(Request $request){
-        $records = self::$Cities->where('cities.status', 1)
-        ->join('states', 'cities.state_id', '=', 'states.id')
-        ->where('states.title', $request->input('state'))
-        ->select('cities.*')
-        ->orderBy('cities.title', 'ASC')
+         DB::statement("SET SQL_MODE=''");
+        $records = self::$Hotels->where('status', 1)
+        ->where('state', $request->input('state'))
+        ->select('city as title')
+        ->orderBy('city', 'ASC')
+        ->groupBy('city')
         ->get();
+        DB::statement("SET SQL_MODE=only_full_group_by");
         return response()->json(['success'=>true, 'records' => $records],200);
     }
     
