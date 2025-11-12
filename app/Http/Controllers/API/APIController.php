@@ -1193,12 +1193,12 @@ class APIController extends Controller{
          $record = self::$Wishlists->where('user_id', $GLOBALS['USER.ID'])->where('hotel_id', $request->input('hotel_id'))->exists();
          if($record){
             self::$Wishlists->where('user_id', $GLOBALS['USER.ID'])->where('hotel_id', $request->input('hotel_id'))->delete();
-            return response()->json(['success'=>true, 'record' => false, 'message' => "Hotel removed in wishlist successfully."],200);
+            return response()->json(['success'=>true, 'record' => false, "type" => 'removed',  'message' => "Property removed from your saved list."],200);
          }else{
             $setData['user_id'] = $GLOBALS['USER.ID'];
 			$setData['hotel_id'] = $request->input('hotel_id');			
 			self::$Wishlists->CreateRecord($setData);
-            return response()->json(['success'=>true, 'record' => true, 'message' => "Hotel added in wishlist successfully."],200);
+            return response()->json(['success'=>true, 'record' => true, "type" => 'added', 'message' => "added to saved list."],200);
          }
 
 	}
