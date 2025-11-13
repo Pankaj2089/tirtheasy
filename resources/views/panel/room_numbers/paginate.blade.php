@@ -15,18 +15,16 @@ $siteUrl = env('APP_URL');
    @endphp
     <tr>
         <td>{{$sr}}.</td>
-        <td>@if($row->image != '')<img src="{{$siteUrl}}/public/img/rooms/{{$row->image}}" width="100px" />@endif</td>
+        <td>{{$row->prefix}}</td>
         <td>{{$row->title}}</td>
+        <td>{{$row->full_title}}</td>
         <td>
-        @php
-        if($row->status == 1){$class = 'bg-label-success'; $label = 'Active';}else{$class = 'bg-label-danger'; $label = 'In-Active';}
-        @endphp
-        <a style="cursor:pointer" onclick="changeStatus('rooms','{!!$row->id!!}');" id="status_{{$row->id}}" class="badge {{$class}} me-1">{{$label}}</a>
-        <input type="hidden" id="status_value_{{$row->id}}" value="{!!$row->status!!}" />
+            @php
+            if($row->status == 1){$class = 'bg-label-success'; $label = 'Active';}else{$class = 'bg-label-danger'; $label = 'In-Active';}
+            @endphp
+            <a style="cursor:pointer" onclick="changeStatus('room_numbers','{!!$row->id!!}');" id="status_{{$row->id}}" class="badge {{$class}} me-1">{{$label}}</a>
+            <input type="hidden" id="status_value_{{$row->id}}" value="{!!$row->status!!}" />
         </td>
-
-        <td><a href="{{url('/panel/room-numbers/')}}/{{$row->id}}" class="btn btn-sm btn-primary waves-effect waves-light">Room No.</a></td>
-
         <td>{!! date('d M, Y h:i A',strtotime($row->created_at)) !!}</td>
         <td>
             <div class="dropdown">
@@ -34,8 +32,8 @@ $siteUrl = env('APP_URL');
                     <i class="icon-base ti tabler-dots-vertical"></i>
                 </button>
             <div class="dropdown-menu">
-                <a class="dropdown-item" href="{{url('/panel/edit-room/')}}/{{$row->id}}" style="cursor:pointer" ><i class="icon-base ti tabler-pencil me-1"></i> Edit</a>
-                <a class="dropdown-item" onclick="deleteData('rooms','{{ $row->id }}');" href="javascript:void(0);"><i class="icon-base ti tabler-trash me-1"></i> Delete</a>
+                <a class="dropdown-item" href="{{url('/panel/edit-room-number/')}}/{{$row->id}}" style="cursor:pointer" ><i class="icon-base ti tabler-pencil me-1"></i> Edit</a>
+                <a class="dropdown-item" onclick="deleteData('room_numbers','{{ $row->id }}');" href="javascript:void(0);"><i class="icon-base ti tabler-trash me-1"></i> Delete</a>
             </div>
         </div>
         </td>

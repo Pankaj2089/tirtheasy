@@ -38,7 +38,16 @@ role="tab" aria-selected="false"> <span class="icon-base ti tabler-user-cog icon
             <div class="tab-pane fade active show" id="form-tabs-personal" role="tabpanel">
         
                 <div class="row g-12">
-                  <div class="col-md-8">
+                  <div class="col-md-3">
+                    <label class="form-label" for="title">Room Category</label>
+                     <select type="text" id="room_category_id" name="room_category_id" class="form-select select2" >
+                        <option value="">Select</option>
+                           @foreach($roomcategories as $roomcategory)
+                              <option value="{{$roomcategory->id}}" {{$record->room_category_id === $roomcategory->id ? 'selected':''}}>{{$roomcategory->title}}</option>
+                        @endforeach
+                    </select>
+                  </div>
+                  <div class="col-md-5">
                     <label class="form-label" for="title">Room Name</label>
                     <input type="text" id="title" name="title" class="form-control" value="{{$record->title}}" />
                   </div>

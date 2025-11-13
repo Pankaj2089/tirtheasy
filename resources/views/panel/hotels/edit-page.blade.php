@@ -18,7 +18,11 @@ $siteUrl = env('APP_URL');
           <div class="nav-align-top">
             <ul class="nav nav-tabs" role="tablist">
               <li class="nav-item">
-                <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#form-tabs-personal" aria-controls="form-tabs-personal"
+                <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#form-tabs-vendor" aria-controls="form-tabs-personal"
+role="tab" aria-selected="true"> <span class="icon-base ti tabler-user icon-lg d-sm-none"></span><span class="d-none d-sm-block">Vendor</span> </button>
+              </li>
+              <li class="nav-item">
+                <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#form-tabs-personal" aria-controls="form-tabs-personal"
 role="tab" aria-selected="true"> <span class="icon-base ti tabler-user icon-lg d-sm-none"></span><span class="d-none d-sm-block">General Info</span> </button>
               </li>
               <li class="nav-item">
@@ -51,7 +55,22 @@ role="tab" aria-selected="false"> <span class="icon-base ti tabler-user-cog icon
         </div>
         <div class="card-body">
           <div class="tab-content p-0">
-            <div class="tab-pane fade active show" id="form-tabs-personal" role="tabpanel">
+            <div class="tab-pane fade active show" id="form-tabs-vendor" role="tabpanel">
+                <div class="row g-6">
+                 
+                  <div class="col-md-6">
+                    <label class="form-label" for="amenities">Vendor</label>
+                    <select type="text" id="vendor_id" name="vendor_id" class="form-select select2" >
+                        <option value="">Select</option>
+                         @foreach($vendors as $vendor)
+                          <option value="{{$vendor->id}}"  {{$record->vendor_id === $vendor->id ? 'selected':''}} >{{$vendor->name}} ({{$vendor->login_id.' - '.$vendor->property_id}})</option>
+                        @endforeach
+                    </select>
+                  </div>       
+                
+                </div>
+            </div>
+            <div class="tab-pane fade" id="form-tabs-personal" role="tabpanel">
         
                 <div class="row g-6">
                   <div class="col-md-8">
@@ -169,8 +188,8 @@ role="tab" aria-selected="false"> <span class="icon-base ti tabler-user-cog icon
             <div class="tab-pane fade" id="form-tabs-information" role="tabpanel">
                 <div class="row g-6">
                   <div class="col-md-12">
-                    <label class="form-label" for="description">Policy</label>
-                    <textarea class="form-control editor"  rows="10" id="policy" name="policy">{{$record->policy}}</textarea>
+                    <label class="form-label" for="description">Cancellation Policy</label>
+                    <textarea class="form-control"  rows="5" id="policy" name="policy">{{$record->policy}}</textarea>
                   </div> 
                   <div class="col-md-12">
                     <label class="form-label" for="description">Description</label>
@@ -865,4 +884,9 @@ function deleteImgData(table,rowID){
 	myDropzone.on("addedfile", function(file) {
 			});
 </script> 
+<style>
+  .select2 {
+    width: 100% !important;
+  }
+  </style>
 @endsection

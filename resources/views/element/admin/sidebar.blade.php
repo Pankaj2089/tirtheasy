@@ -137,6 +137,7 @@
         $amenitiesActive =
         $facilitiesActive =
         $amenityCategoriesActive =
+        $roomCategoriesActive = 
         false;
         if($action =='admin.hotels' || $action =='admin.add-hotel' || $action =='admin.edit-hotel' || $action =='admin.rooms' || $action =='admin.add-room' || $action =='admin.edit-room'){
           $hotelManagerActive = $hotelsActive = true;
@@ -150,6 +151,9 @@
         if($action =='admin.amenity-categories' ){
           $hotelManagerActive = $amenityCategoriesActive = true;
         } 
+        if($action =='admin.room-categories' ){
+          $hotelManagerActive = $roomCategoriesActive = true;
+        } 
         @endphp
         <li class="menu-item  {{ $hotelManagerActive ? 'active open':'' }}">
           <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -157,6 +161,11 @@
             <div data-i18n="Hotels">Hotels</div>
           </a>
           <ul class="menu-sub">
+            <li class="menu-item  {{ $roomCategoriesActive ? 'active':'' }}">
+              <a href="{{route('admin.room-categories')}}" class="menu-link">
+                <div data-i18n="Room Categories">Room Categories</div>
+              </a>
+            </li>
             <li class="menu-item  {{ $amenityCategoriesActive ? 'active':'' }}">
               <a href="{{route('admin.amenity-categories')}}" class="menu-link">
                 <div data-i18n="Amenity Categories">Amenity Categories</div>
@@ -177,11 +186,7 @@
                 <div data-i18n="Hotels">Hotels</div>
               </a>
             </li>
-            <!-- <li class="menu-item  {{ $hotelsActive ? 'active':'' }}">
-              <a href="{{route('admin.coupon-codes')}}" class="menu-link">
-                <div data-i18n="Hotels">Coupon Codes</div>
-              </a>
-            </li> -->
+            
           </ul>
         </li>
 
@@ -246,5 +251,27 @@
               </li>
             </ul>
         </li>
+
+         @php
+          $vendorActive =
+          false;         
+          if($action =='admin.users'){
+            $vendorActive = true;
+          }   
+          @endphp
+        <li class="menu-item  {{ $vendorActive ? 'active open':'' }} ">
+          <a href="javascript:void(0);" class="menu-link menu-toggle">
+            <i class="menu-icon icon-base ti tabler-list"></i>
+            <div data-i18n="DMS">DMS</div>
+          </a>
+          <ul class="menu-sub">
+            <li class="menu-item {{ $vendorActive ? 'active':'' }}">
+              <a href="{{route('admin.vendors')}}" class="menu-link">
+                <div data-i18n="Vendors">Vendors</div>
+              </a>
+            </li>
+          </ul>
+        </li>
+
     </ul>
   </aside>

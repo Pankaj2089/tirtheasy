@@ -2,42 +2,42 @@
 
 @section('content')
 
-            <div class="container-xxl flex-grow-1 container-p-y">
-            <div class="card mb-2 p-3">
+        <div class="container-xxl flex-grow-1 container-p-y">
+          <div class="card mb-2 p-3">
             <form id="searchForm" name="searchForm">
             <div class="row">
             <div class="col-md-2">
-            <input type="text" class="form-control" name="search_title" placeholder="Enter Title" id="defaultFormControlInput" />
+              <input type="text" class="form-control" name="search_title" placeholder="Enter Room Number" id="defaultFormControlInput" />
             </div>
             <div class="col-md-2">
-            <select name="search_status" class="form-select">
-            <option value="">Status</option>
-            <option value="1">Active</option>
-            <option value="2">In-Active</option>
-            </select>
+              <select name="search_status" class="form-select">
+                <option value="">Status</option>
+                <option value="1">Active</option>
+                <option value="2">In-Active</option>
+              </select>
             </div>
             <div class="col-md-1">
-            <a style="color:#FFF" id="searchbuttons" onclick="filterData('search');" class="btn btn-primary waves-effect waves-light">Search</a>
+              <a style="color:#FFF" id="searchbuttons" onclick="filterData('search');" class="btn btn-primary waves-effect waves-light">Search</a>
             </div>
             <div class="col-md-1">
-            <a style="color:#FFF" onclick="resetFilterForm();" class="btn btn-danger waves-effect waves-light">Reset</a>
+              <a style="color:#FFF" onclick="resetFilterForm();" class="btn btn-danger waves-effect waves-light">Reset</a>
             </div>
             </div>
             </form>
             </div>
               <!-- Basic Bootstrap Table -->
               <div class="card">
-                <h5 class="card-header">Rooms - <i style="color:var(--bs-primary); font-weight:600">({{$hotelData->title}})</i> <a href="{{ url('/panel/add-room/'.$hotel_id) }}" style="float:right; color:#FFF" class="btn btn-success waves-effect waves-light">Add</a></h5>
+                <h5 class="card-header">Rooms Numbers - <i style="color:var(--bs-primary); font-weight:600">({{$roomData->title}})</i> <a href="{{ url('/panel/add-room-number/'.$room_id) }}" style="float:right; color:#FFF" class="btn btn-success waves-effect waves-light">Add</a></h5>
                 
                 <div class="table-responsive text-nowrap">
                   <table class="table">
                     <thead>
                       <tr>
                         <th>#ID</th>
-                        <th>Image</th>
-                        <th>Title</th>
+                        <th>Prefix</th>
+                        <th>Room Number</th>
+                        <th>Full Room Number</th>
                         <th>Status</th>
-                        <th>Room No.</th>
                         <th>Created</th>
                         <th>Actions</th>
                       </tr>
@@ -65,7 +65,7 @@
                 headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 type: 'POST',
                 data: $('#searchForm').serialize(),
-                url: "{{ url('/panel/rooms_paginate/'.$hotel_id) }}",
+                url: "{{ url('/panel/rooms_numbers_paginate/'.$room_id) }}",
                 success: function(response){
                     $('#replaceHtml').html(response);
                     $('#searchbuttons').html('Search');

@@ -11,6 +11,7 @@ use App\Models\HotelFaqs;
 use App\Models\HotelRules;
 use App\Models\HotelDetails;
 use App\Models\HotelLandmarks;
+use App\Models\AdminUser;
 use App\RouteHelper;
 use App\Models\TokenHelper;
 use App\Models\Responses;
@@ -38,6 +39,7 @@ class HotelsController extends Controller{
     private static $HotelRules;
     private static $HotelDetails;
     private static $HotelLandmarks;
+    private static $AdminUser;
     public function __construct(){
         self::$Hotels = new Hotels();
         self::$States = new States();
@@ -50,6 +52,7 @@ class HotelsController extends Controller{
 		self::$HotelRules = new HotelRules();
 		self::$HotelDetails = new HotelDetails();
 		self::$HotelLandmarks = new HotelLandmarks();
+		self::$AdminUser = new AdminUser();
     }
     #admin dashboard page
     public function getList(Request $request){
@@ -120,6 +123,7 @@ class HotelsController extends Controller{
 					}
 				}
 				
+				$setData['vendor_id'] = $request->input('vendor_id');
 				$setData['added_by'] = $request->session()->get('admin_id');
 				$setData['title'] = $request->input('title');
 				$setData['slug'] = Str::slug($request->input('title'));
@@ -161,7 +165,8 @@ class HotelsController extends Controller{
 		$states = self::$States->where('status',1)->orderBy('title', 'ASC')->get();
 		$amenities = self::$AmenityCategories->with('amenities')->where('status',1)->orderBy('title', 'ASC')->get();
 		$facilities = self::$Facilities->where('status',1)->orderBy('title', 'ASC')->get();
-        return view('/panel/hotels/add-page',compact(['states','amenities','facilities']));
+		$vendors = self::$AdminUser->where('status',1)->where('type',"Vendor")->orderBy('name', 'ASC')->get();
+        return view('/panel/hotels/add-page',compact(['states','amenities','facilities','vendors']));
     }
 	#editPage
     public function updateHotelStatus(Request $request){
@@ -238,6 +243,7 @@ class HotelsController extends Controller{
 				}
 				
 				$setData['title'] = $request->input('title');
+				$setData['vendor_id'] = $request->input('vendor_id');
 				$setData['slug'] = Str::slug($request->input('title'));
 				$setData['title'] = $request->input('title');
 				$setData['hotel_type'] = $request->input('hotel_type');
@@ -314,7 +320,8 @@ class HotelsController extends Controller{
 			$amenities = self::$AmenityCategories->with('amenities')->where('status',1)->orderBy('title', 'ASC')->get();
 			$facilities = self::$Facilities->where('status',1)->orderBy('title', 'ASC')->get();
 			$hotel_images = self::$HotelImages->where('status','!=',3)->where('hotel_id',$record->id)->latest()->get();
-			return view('/panel/hotels/edit-page',compact(['record','states','amenities', 'facilities', 'cities','hotel_images']));
+			$vendors = self::$AdminUser->where('status',1)->where('type',"Vendor")->orderBy('name', 'ASC')->get();
+			return view('/panel/hotels/edit-page',compact(['record','states','amenities', 'facilities', 'cities','hotel_images','vendors']));
 		}else{
 			return redirect('/panel/hotels');
 		}

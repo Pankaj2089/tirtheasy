@@ -1,43 +1,28 @@
 <?php
-
 namespace App\Models;
-
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class AdminUser extends Authenticatable
-{
-    use HasFactory, Notifiable;
-
-    protected $table = 'users';
-
+class RoomCategories extends Authenticatable{
+  use HasFactory, Notifiable;
+	protected $table = 'room_categories';
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
-        "type",
-        'name',
-        'email',
-        'password',
-		'mobile',
-		'gender',
-		'company',
-		'company_type',
-		'gstin',
-		'address',
-		'city',
-		'state',
-		'country',
-		'zipcode',
-		'photo',
-		'dob',
-		'property_id',
-		'login_id',
+		'title',
+		'slug',
+		'description',
+		'seo_title',
+		'seo_description',
+		'seo_keyword',
+		'status',
+		'ordering'
     ];
 
     /**
@@ -46,9 +31,6 @@ class AdminUser extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-        "login_otp",
-        'password',
-        'remember_token',
     ];
 
     /**
@@ -56,30 +38,18 @@ class AdminUser extends Authenticatable
      *
      * @var array<string, string>
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
-	
+
 	public function GetRecordById($id){
-
 		return $this::where('id', $id)->first();
-
 	}
 
 	public function UpdateRecord($Details){
-
 		$Record = $this::where('id', $Details['id'])->update($Details);
-
 		return true;
-
 	}
 
 	public function CreateRecord($Details){
-
 		$Record = $this::create($Details);
-
 		return $Record;
-
 	}
-
 }

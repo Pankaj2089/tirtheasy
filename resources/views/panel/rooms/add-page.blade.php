@@ -24,7 +24,16 @@ role="tab" aria-selected="true"> <span class="icon-base ti tabler-user icon-lg d
           <div class="tab-content p-0">
             <div class="tab-pane fade active show" id="form-tabs-personal" role="tabpanel">
                 <div class="row g-6">
-                  <div class="col-md-8">
+                  <div class="col-md-3">
+                    <label class="form-label" for="title">Room Category</label>
+                     <select type="text" id="room_category_id" name="room_category_id" class="form-select select2" >
+                        <option value="">Select</option>
+                           @foreach($roomcategories as $roomcategory)
+                              <option value="{{$roomcategory->id}}">{{$roomcategory->title}}</option>
+                        @endforeach
+                    </select>
+                  </div>
+                  <div class="col-md-5">
                     <label class="form-label" for="title">Room Name</label>
                     <input type="text" id="title" name="title" class="form-control" />
                   </div>
@@ -70,8 +79,6 @@ role="tab" aria-selected="true"> <span class="icon-base ti tabler-user icon-lg d
                     <label class="form-label" for="no_of_child_in_room">No of Child</label>
                     <input type="number" id="no_of_child_in_room" name="no_of_child_in_room" class="form-control" value="" />
                   </div>
-
-
 
                    <div class="col-md-3">
                     <label class="form-label" for="no_of_double_rooms">No. of Double Rooms</label>

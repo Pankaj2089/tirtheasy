@@ -6,51 +6,22 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class Hotels extends Authenticatable{
+class RoomNumbers extends Authenticatable{
 
   use HasFactory, Notifiable;
 
-	protected $table = 'hotel';
+	protected $table = 'room_numbers';
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
-		'title',
-		'vendor_id',
-		'added_by',
-		'slug',
-		'hotel_type',
-		'state',
-		'city',
-		'address',
-		'amenities',
-		'facilities',
-		'check_in_time',
-		'check_out_time',
-		'policy',
-		'latitude',
-		'longitude',
-		'description',
-		'image',
-		'seo_title',
-		'seo_description',
-		'seo_keyword',
-		'robot_tags',
-		'status',
-		'browse_top',
-		'price',
-		'cancellation_policy',
-		'special_note',
-		'extra_bed_policy',
-		'check_in_restrictions',
-		'food_arrangement',
-		'id_proof_related',
-		'property_accessibility',
-		'pet_related',
-		'other_rules',
-		'is_only_jain'
+    'title',
+    'hotel_id',
+    'room_id',
+    'prefix',
+    'full_title',
     ];
 
 	public function GetRecordById($id){

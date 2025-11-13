@@ -5,6 +5,7 @@ use App\Models\Rooms;
 use App\Models\Hotels;
 use App\Models\AmenityCategories;
 use App\Models\Amenities;
+use App\Models\RoomCategories;
 use App\Models\RoomImages;
 use App\Models\RoomPrices;
 use App\Models\Facilities;
@@ -32,6 +33,7 @@ class RoomsController extends Controller{
     private static $RoomPrices;
     private static $Hotels;
     private static $Amenities;
+    private static $RoomCategories;
     public function __construct(){
         self::$Rooms = new Rooms();
         self::$AmenityCategories = new AmenityCategories();
@@ -41,6 +43,7 @@ class RoomsController extends Controller{
 		self::$RoomPrices = new RoomPrices();
 		self::$Facilities = new Facilities();
 		self::$Hotels = new Hotels();
+		self::$RoomCategories = new RoomCategories();
     }
     #admin dashboard page
     public function getList(Request $request, $hotel_id){
@@ -68,12 +71,14 @@ class RoomsController extends Controller{
         if(!$request->session()->has('admin_email') || empty($hotel_id)){return redirect('/panel/');}
         if($request->input()){
             $validator = Validator::make($request->all(), [
+				'room_category_id' => 'required',
                 'hotel_id' => 'required',
 				'title' => 'required',
 				'price' => 'required',
 				'no_of_rooms' => 'required',
 				'no_of_guest' => 'required',
 			], [
+				'room_category_id.required' => 'Please select room category.',
                 'hotel_id.required' => 'Invalid request.',
 				'title.required' => 'Please enter title.',
 				'price.required' => 'Please enter room price.',
@@ -82,7 +87,10 @@ class RoomsController extends Controller{
 			]);
             if($validator->fails()){
                 $errors = $validator->errors();
-                if($errors->first('hotel_id')){
+                if($errors->first('room_category_id')){
+                    return json_encode(array('heading' => 'Error', 'msg' => $errors->first('room_category_id')));die;
+                }
+				if($errors->first('hotel_id')){
                     return json_encode(array('heading' => 'Error', 'msg' => $errors->first('hotel_id')));die;
                 }
                 if($errors->first('title')){
@@ -113,6 +121,8 @@ class RoomsController extends Controller{
                         $setData['image'] = $actual_image_name;
 					}
 				}
+
+				$setData['room_category_id'] = $request->input('room_category_id');
                 $setData['hotel_id'] = $request->input('hotel_id');
 				$setData['title'] = $request->input('title');
                 $setData['price'] = $request->input('price');
@@ -162,18 +172,21 @@ class RoomsController extends Controller{
         }
 		
 		$amenities = self::$AmenityCategories->with('amenities')->where('status',1)->orderBy('title', 'ASC')->get();
-        return view('/panel/rooms/add-page',compact(['amenities','hotel_id']));
+		$roomcategories = self::$RoomCategories->where('status',1)->orderBy('title', 'ASC')->get();
+        return view('/panel/rooms/add-page',compact(['amenities','hotel_id','roomcategories']));
     }
 	#editPage
     public function editPage(Request $request,$row_id){
         if(!$request->session()->has('admin_email')){return redirect('/panel/');}
         if($request->input()){
             $validator = Validator::make($request->all(), [
+				'room_category_id' => 'required',
 				'title' => 'required',
 				'price' => 'required',
 				'no_of_rooms' => 'required',
 				'no_of_guest' => 'required',
 			], [
+				'room_category_id.required' => 'Please select room category.',
 				'title.required' => 'Please enter title.',
 				'price.required' => 'Please enter room price.',
 				'no_of_rooms.required' => 'Please enter no of rooms.',
@@ -183,6 +196,9 @@ class RoomsController extends Controller{
                 $errors = $validator->errors();
                 if($errors->first('title')){
                     return json_encode(array('heading' => 'Error', 'msg' => $errors->first('title')));die;
+                }
+				if($errors->first('room_category_id')){
+                    return json_encode(array('heading' => 'Error', 'msg' => $errors->first('room_category_id')));die;
                 }
 				if($errors->first('price')){
                     return json_encode(array('heading' => 'Error', 'msg' => $errors->first('price')));die;
@@ -217,6 +233,7 @@ class RoomsController extends Controller{
 					$actual_image_name = $request->input('old_banner');
 				}
 				$setData['title'] = $request->input('title');
+				$setData['room_category_id'] = $request->input('room_category_id');
                 $setData['price'] = $request->input('price');
                 $setData['no_of_rooms'] = $request->input('no_of_rooms');
                 $setData['no_of_guest'] = $request->input('no_of_guest');
@@ -279,7 +296,8 @@ class RoomsController extends Controller{
 			$amenities = self::$AmenityCategories->with('amenities')->where('status',1)->orderBy('title', 'ASC')->get();
 			$room_images = self::$RoomImages->where('status','!=',3)->where('room_id',$record->id)->latest()->get();
             $facilities = self::$Facilities->where('status',1)->orderBy('title', 'ASC')->get();
-			return view('/panel/rooms/edit-page',compact(['record','amenities', 'room_images','facilities']));
+			$roomcategories = self::$RoomCategories->where('status',1)->orderBy('title', 'ASC')->get();
+			return view('/panel/rooms/edit-page',compact(['record','amenities', 'room_images','facilities','roomcategories']));
 		}else{
 			return redirect('/panel/hotels');
 		}

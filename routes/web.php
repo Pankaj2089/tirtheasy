@@ -5,7 +5,9 @@ use App\Http\Controllers\PagesController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\Auth\GoogleController;
 
-Route::get('/',[PagesController::class, 'index'])->name('index');
+Route::get('/', function () {
+    return redirect()->away('https://tirtheasy.com/');
+});
 
 Route::get('/sign-up',[PagesController::class, 'signUp'])->name('sign-up');
 Route::get('/about-us',[PagesController::class, 'aboutUs'])->name('about-us');

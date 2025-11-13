@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\AmenitiesController;
 use App\Http\Controllers\Admin\FacilitiesController;
 use App\Http\Controllers\Admin\AmenityCategoriesController;
 use App\Http\Controllers\Admin\RoomsController;
+use App\Http\Controllers\Admin\RoomNumbersController;
 use App\Http\Controllers\Admin\BannersController;
 use App\Http\Controllers\Admin\PromotionsController;
 use App\Http\Controllers\Admin\PopularDestinationsController;
@@ -28,6 +29,8 @@ use App\Http\Controllers\Admin\FaqsController;
 use App\Http\Controllers\Admin\ContactUsController;
 use App\Http\Controllers\Admin\OrdersController;
 use App\Http\Controllers\Admin\BlogsController;
+use App\Http\Controllers\Admin\RoomCategoriesController;
+use App\Http\Controllers\Admin\VendorsController;
 
 Route::prefix('panel')->group(function(){
 	
@@ -63,6 +66,12 @@ Route::prefix('panel')->group(function(){
     Route::any('/categories_paginate',[CategoriesController::class, 'listPaginate'])->name('admin.categories_paginate');
 	Route::any('/get-category',[CategoriesController::class, 'getPage'])->name('admin.get-category');
 	Route::any('/add-category',[CategoriesController::class, 'addPage'])->name('admin.add-category');
+
+	#room categories
+    Route::get('/room-categories',[RoomCategoriesController::class, 'getList'])->name('admin.room-categories');
+    Route::any('/room_categories_paginate',[RoomCategoriesController::class, 'listPaginate'])->name('admin.room_categories_paginate');
+	Route::any('/get-room-category',[RoomCategoriesController::class, 'getPage'])->name('admin.get-room-category');
+	Route::any('/add-room-category',[RoomCategoriesController::class, 'addPage'])->name('admin.add-room-category');
 	
 	#ajax
 	Route::post('/change-status',[AjaxController::class, 'changeStatus'])->name('admin.change-status');
@@ -133,6 +142,11 @@ Route::prefix('panel')->group(function(){
     Route::any('/rooms_paginate/{hotel_id}',[RoomsController::class, 'listPaginate'])->name('admin.rooms_paginate');
 	Route::any('/edit-room/{row_id}',[RoomsController::class, 'editPage'])->name('admin.edit-room');
 	Route::any('/add-room/{hotel_id}',[RoomsController::class, 'addPage'])->name('admin.add-room');
+
+    Route::get('/room-numbers/{room_id}',[RoomNumbersController::class, 'getList'])->name('admin.rooms_numbers');
+	 Route::any('/rooms_numbers_paginate/{room_id}',[RoomNumbersController::class, 'listPaginate'])->name('admin.rooms_numbers_paginate');
+	Route::any('/edit-room-number/{row_id}',[RoomNumbersController::class, 'editPage'])->name('admin.edit-room-number');
+	Route::any('/add-room-number/{room_id}',[RoomNumbersController::class, 'addPage'])->name('admin.add-room-number');
 	
 	Route::any('/get-price-faqs',[RoomsController::class, 'getPrice'])->name('admin.get-room-price');
 	Route::any('/add-price-faqs',[RoomsController::class, 'addPrice'])->name('admin.add-room-price');
@@ -222,6 +236,12 @@ Route::prefix('panel')->group(function(){
 	Route::get('/group-enquiries',[ContactUsController::class, 'getGroupList'])->name('admin.group-enquiries');
     Route::any('/group_enquiries_paginate',[ContactUsController::class, 'listGroupPaginate'])->name('admin.group');
     Route::any('/view-group-enquiries/{row_id}',[ContactUsController::class, 'viewGroupEnquiryPage'])->name('admin.view-group-enquiries');
+
+	#vendors
+    Route::get('/vendors',[VendorsController::class, 'getList'])->name('admin.vendors');
+    Route::any('/vendors_paginate',[VendorsController::class, 'listPaginate'])->name('admin.vendors_paginate');
+	Route::any('/get-vendor',[VendorsController::class, 'getPage'])->name('admin.get-vendor');
+	Route::any('/add-vendor',[VendorsController::class, 'addPage'])->name('admin.add-vendor');
 	
 });
 
