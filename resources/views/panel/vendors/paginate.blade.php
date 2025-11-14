@@ -33,6 +33,7 @@
                 <div class="dropdown-menu">
                     <a class="dropdown-item" style="cursor:pointer" onclick="getDetails('{{$row->id}}');" data-bs-toggle="modal" data-bs-target="#addNewCCModal"><i class="icon-base ti tabler-pencil me-1"></i> Edit</a>
                     <a class="dropdown-item" onclick="deleteData('users','{{ $row->id }}');" href="javascript:void(0);"><i class="icon-base ti tabler-trash me-1"></i> Delete</a>
+                    <a class="dropdown-item" style="cursor:pointer" onclick="getChangePassword('{{$row->id}}');" data-bs-toggle="modal" data-bs-target="#addChangePasswordModal"><i class="icon-base ti tabler-lock me-1"></i> Change Password</a>
                 </div>
             </div>
         </td>

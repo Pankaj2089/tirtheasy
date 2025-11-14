@@ -107,11 +107,46 @@
       </div>
     </div>
   </div>
-  <!--/ Add New Credit Card Modal -->
+  <!--/ change Password Modal -->
+  <div class="modal fade" id="addChangePasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered1 modal-simple modal-add-new-cc">
+      <div class="modal-content">
+        <div class="modal-body">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <div class="text-center mb-6">
+            <h4 id="popupHeading" class="mb-2">Change Vendor Password</h4>
+            <!--<p>Create a brand new category from here.</p>-->
+          </div>
+          <form id="pagecpForm" class="row g-6" method="post">
+          <input type="hidden" id="cp_row_id" name="cp_row_id" value="0" />
+            <div class="col-12 form-control-validation">
+              <label class="form-label w-100" for="title">New Password</label>
+              <div class="input-group-merge">
+                <input id="cp_password" name="cp_password" class="form-control credit-card-mask" placeholder="Please enter new password" type="text" />
+              </div>
+            </div>
+
+            <div class="col-12 form-control-validation">
+              <label class="form-label w-100" for="title">Confirm New Password</label>
+              <div class="input-group-merge">
+                <input id="cp_confirm_password" name="cp_confirm_password" class="form-control credit-card-mask" placeholder="Please enter confirm new password" type="text" />
+              </div>
+            </div>
+            
+            <div class="col-12 text-center">
+              <button type="button" id="submitCPBtn" class="btn btn-primary me-3">Submit</button>
+              <button type="reset" class="btn btn-label-secondary btn-reset" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 
 <script type="text/javascript">
 var addUrl = "{{route('admin.add-vendor')}}";
 var getUrl = "{{route('admin.get-vendor')}}";
+var changePassUrl = "{{route('admin.vendor-change-password')}}";
 $(document).ready(function(){
 	filterData('simple');
 	$('#submitBtn').click(function(e) {
@@ -145,7 +180,42 @@ $(document).ready(function(){
 			}
 		}); 
 	});
+
+  $('#submitCPBtn').click(function(e) {
+		$('#submitCPBtn').html('Processing...');
+		var form = $('#pagecpForm')[0];
+		var formData = new FormData(form);
+	   $.ajax({
+			headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+			type: 'POST',
+			data:formData,
+			url: changePassUrl,
+			processData: false,
+			contentType: false,
+			success: function(response){
+				$('#submitCPBtn').html('Submit');
+				var obj = JSON.parse(response);
+				 if(obj['heading'] == "Success"){
+          swal("Success", obj['msg'], "success")
+					 $('#addChangePasswordModal').modal('hide');
+            $('#cp_row_id').val(0);
+            $('#cp_password, #cp_confirm_password').val('').show();
+				}else{
+					swal("Error!", obj['msg'], "error");
+					return false;
+				}
+			},error: function(ts) {
+				$('#submitBtn').html('Submit');
+				swal("Error!", 'Some thing want to wrong, please try after sometime.', "error");
+				return false;
+			}
+		}); 
+	});
+  
 });
+function getChangePassword(rowId){
+  $('#cp_row_id').val(rowId);
+}
 function getDetails(rowId){
 	$('#popupHeading').html('Edit Customer');
 	$.ajax({
@@ -161,7 +231,7 @@ function getDetails(rowId){
 				$('#name').val(obj['record']['name']);
 				$('#email').val(obj['record']['email']);
 				$('#mobile').val(obj['record']['mobile']);
-				$('#password, .password').val('OK').hide();
+				$('#cp_password, .password').val('OK').hide();
 			}else{
 				swal("Error!", obj['msg'], "error");
 				return false;

@@ -242,6 +242,7 @@ Route::prefix('panel')->group(function(){
     Route::any('/vendors_paginate',[VendorsController::class, 'listPaginate'])->name('admin.vendors_paginate');
 	Route::any('/get-vendor',[VendorsController::class, 'getPage'])->name('admin.get-vendor');
 	Route::any('/add-vendor',[VendorsController::class, 'addPage'])->name('admin.add-vendor');
+	Route::any('/vendor-change-password',[VendorsController::class, 'changePassword'])->name('admin.vendor-change-password');
 	
 });
 
