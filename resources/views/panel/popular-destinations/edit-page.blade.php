@@ -88,7 +88,7 @@ role="tab" aria-selected="true"> <span class="icon-base ti tabler-user icon-lg d
 </div>
 
 <script>
-    let addUrl = "{{url('/panel/edit-popular-destination/'.$row_id)}}";
+    let editUrl = "{{url('/panel/edit-popular-destination/'.$row_id)}}";
 $(document).ready(function(){
 	$('#submitBtn').click(function(e) {
 		$('#submitBtn').html('Processing...');
@@ -98,7 +98,7 @@ $(document).ready(function(){
         headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
         type: 'POST',
         data:formData,
-        url: addUrl,
+        url: editUrl,
         processData: false,
               contentType: false,
         success: function(response){
