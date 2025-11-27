@@ -102,53 +102,53 @@
       </div>
     </div>
     <script type="text/javascript">
-	let adminLoginURL = "{{url('/panel/admin-login')}}";
-	let dashboardURL = "{{url('/panel/dashboard')}}";
-	$(document).ready(function(){
-		$("#email, #password").on('keyup', function (e) {
-			if (e.keyCode == 13) {
-				$('#loginSubmit').trigger('click');
-			}
-		});
-		$('#loginSubmit').click(function(e){
-			var flag = 0;
-			if($.trim($("#email").val()) == ''){
-				flag = 1;
-				showMessage('Please Enter Account Username.');
-				return false;
-			}
-			if($.trim($("#password").val()) == ''){
-				flag = 1;
-				showMessage('Please Enter Account Password.');
-				return false;
-			}
-			if(flag == 0){
-				$('#loginSubmit').html('Processing...');
-				$.ajax({
-					type: 'POST',
-					headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-					url: adminLoginURL,
-					data: $('#adminLoginForm').serialize(),
-					beforeSend:function(){$('#loginSubmit').removeClass('login-btn').addClass('login-btn-processing').val('Processing...'); },
-					success: function(msg){
-						var obj = JSON.parse(msg);
-						$('#loginSubmit').html('Log In');
-						if(obj['heading'] == "Success"){
-							window.location.assign(dashboardURL);
-						}else{
-							showMessage(obj['msg']);
-							return false;
-						}
-					},error: function(ts) {
-						showMessage('Some thing want to wrong, please try after sometime.');
-						return false;
-					}
-				});
-			}
-		});
-	});
-	function showMessage(msg){
-		swal("Error!", msg, "error");
-	}
-	</script>
+    let adminLoginURL = "{{url('/panel/admin-login')}}";
+    let dashboardURL = "{{url('/panel/dashboard')}}";
+    $(document).ready(function(){
+      $("#email, #password").on('keyup', function (e) {
+        if (e.keyCode == 13) {
+          $('#loginSubmit').trigger('click');
+        }
+      });
+      $('#loginSubmit').click(function(e){
+        var flag = 0;
+        if($.trim($("#email").val()) == ''){
+          flag = 1;
+          showMessage('Please Enter Account Username.');
+          return false;
+        }
+        if($.trim($("#password").val()) == ''){
+          flag = 1;
+          showMessage('Please Enter Account Password.');
+          return false;
+        }
+        if(flag == 0){
+          $('#loginSubmit').html('Processing...');
+          $.ajax({
+            type: 'POST',
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            url: adminLoginURL,
+            data: $('#adminLoginForm').serialize(),
+            beforeSend:function(){$('#loginSubmit').removeClass('login-btn').addClass('login-btn-processing').val('Processing...'); },
+            success: function(msg){
+              var obj = JSON.parse(msg);
+              $('#loginSubmit').html('Log In');
+              if(obj['heading'] == "Success"){
+                window.location.assign(dashboardURL);
+              }else{
+                showMessage(obj['msg']);
+                return false;
+              }
+            },error: function(ts) {
+              showMessage('Some thing want to wrong, please try after sometime.');
+              return false;
+            }
+          });
+        }
+      });
+    });
+    function showMessage(msg){
+      swal("Error!", msg, "error");
+    }
+    </script>
 @endsection

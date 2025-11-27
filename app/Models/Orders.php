@@ -19,6 +19,7 @@ class Orders extends Authenticatable
     protected $fillable = [
 		"user_id",
         "invoice_id",
+        "vendor_id",
         "hotel_id",
         "room_id",
         "room_price_id",
@@ -49,7 +50,8 @@ class Orders extends Authenticatable
         "in_no",
         "number_of_nights",
         "room_price",
-        "is_cancelled"
+        "is_cancelled",
+        "platform"
     ];
 
     protected $UpdatableFields = [ ];
