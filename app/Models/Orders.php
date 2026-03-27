@@ -23,6 +23,7 @@ class Orders extends Authenticatable
         "hotel_id",
         "room_id",
         "room_price_id",
+        "room_number_ids",
         "rooms",
         "adults",
         "childs",

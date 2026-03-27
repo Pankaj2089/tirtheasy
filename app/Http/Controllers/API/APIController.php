@@ -21,6 +21,7 @@ use App\Models\HotelLandmarks;
 use App\Models\Rooms;
 use App\Models\RoomImages;
 use App\Models\RoomPrices;
+use App\Models\RoomNumbers;
 use App\Models\AdminUser;
 use App\Models\UserAccessCode;
 use App\Models\Contacts;
@@ -71,6 +72,7 @@ class APIController extends Controller{
     private static $Rooms;
     private static $RoomImages;
     private static $RoomPrices;
+    private static $RoomNumbers;
     private static $UserModel;
     private static $UserAccessCode;
     private static $Orders;
@@ -103,6 +105,7 @@ class APIController extends Controller{
         self::$Rooms = new Rooms();
         self::$RoomImages = new RoomImages();
         self::$RoomPrices = new RoomPrices();
+        self::$RoomNumbers = new RoomNumbers();
         self::$UserModel = new AdminUser();
         self::$UserAccessCode = new UserAccessCode();
         self::$Orders = new Orders();
@@ -494,7 +497,7 @@ class APIController extends Controller{
         }
         if($request->input('property_type')){
             $property_type = $request->input('property_type');
-            $recQry->where('hotel_type',$property_type);
+            $recHotelQry->where('hotel_type',$property_type);
         }
         $recHotels = $recHotelQry->orderBy('title', 'ASC')
         ->limit(20)
@@ -809,6 +812,119 @@ class APIController extends Controller{
                 if(isset($roomRow->id)){
                     // check room price
                     $roomPriceRow = self::$RoomPrices->where('status', 1)->where('room_id',$roomRow->id)->where('id',$request->input('room_price_id'))->orderBy('price', 'ASC')->first();
+
+                    // vendor & room assignment type
+                    $hotelRow = self::$Hotels->where('status', 1)->where('id', $roomRow->hotel_id)->first();
+                    $vendorUser = null;
+                    $isAutoAssign = false;
+                    $roomNumberIdsForOrder = $request->input('room_number_ids') ?? null;
+                    $roomAssignedByNumber = false;
+
+                    if(isset($hotelRow->vendor_id)){
+                        $vendorUser = self::$UserModel->where('id', $hotelRow->vendor_id)->first();
+                        if($vendorUser && isset($vendorUser->room_assignment_type) && $vendorUser->room_assignment_type != 'assign_manually'){
+                            $isAutoAssign = true;
+                        }
+                    }
+
+                    if($isAutoAssign){
+                        $requestedRooms = intval($request->input('rooms'));
+                        $checkInDate = date('Y-m-d',strtotime($request->input('start_date')));
+                        $checkOutDate = date('Y-m-d',strtotime($request->input('end_date')));
+
+                        $categoryRoomIds = self::$Rooms->where('status', 1)
+                            ->where('hotel_id', $roomRow->hotel_id)
+                            ->where('room_category_id', $roomRow->room_category_id)
+                            ->pluck('id')
+                            ->toArray();
+
+                        $allCandidateRoomNumbers = self::$RoomNumbers
+                            ->where('status', 1)
+                            ->where('hotel_id', $roomRow->hotel_id)
+                            ->whereIn('room_id', $categoryRoomIds)
+                            ->orderBy('id', 'ASC')
+                            ->get();
+
+                        $selectedRoomNumbers = self::$RoomNumbers
+                            ->where('status', 1)
+                            ->where('hotel_id', $roomRow->hotel_id)
+                            ->where('room_id', $roomRow->id)
+                            ->orderBy('id', 'ASC')
+                            ->pluck('id')
+                            ->toArray();
+
+                        $overlappingOrders = self::$Orders
+                            ->where('hotel_id', $roomRow->hotel_id)
+                            ->whereNotNull('room_number_ids')
+                            ->where('room_number_ids', '<>', '')
+                            ->where(function ($q) use ($checkInDate, $checkOutDate){
+                                $q->whereBetween('check_in_date', [$checkInDate, $checkOutDate])
+                                  ->orWhereBetween('check_out_date', [$checkInDate, $checkOutDate])
+                                  ->orWhere(function ($q2) use ($checkInDate, $checkOutDate) {
+                                      $q2->where('check_in_date', '<=', $checkInDate)
+                                         ->where('check_out_date', '>=', $checkOutDate);
+                                  });
+                            })
+                            ->where(function($q){
+                                $q->whereNull('is_cancelled')->orWhere('is_cancelled', 0);
+                            })
+                            ->get(['room_number_ids']);
+
+                        $bookedRoomNumberIds = [];
+                        foreach($overlappingOrders as $or){
+                            $ids = array_filter(array_map('trim', explode(',', (string)$or->room_number_ids)));
+                            foreach($ids as $id){
+                                if(intval($id) > 0){
+                                    $bookedRoomNumberIds[] = intval($id);
+                                }
+                            }
+                        }
+                        $bookedRoomNumberIds = array_unique($bookedRoomNumberIds);
+
+                        $availableSelectedRoomNumbers = array_values(array_diff($selectedRoomNumbers, $bookedRoomNumberIds));
+
+                        $assignedRoomNumberIds = [];
+                        $assignedRoomPrice = null;
+                        $assignedRoom = null;
+
+                        if(count($availableSelectedRoomNumbers) >= $requestedRooms){
+                            $assignedRoomNumberIds = array_slice($availableSelectedRoomNumbers, 0, $requestedRooms);
+                            $assignedRoom = $roomRow;
+                            $assignedRoomPrice = $roomPriceRow;
+                        } else {
+                            $availableCategoryRoomNumbers = array_values(array_diff($allCandidateRoomNumbers->pluck('id')->toArray(), $bookedRoomNumberIds));
+                            if(count($availableCategoryRoomNumbers) >= $requestedRooms){
+                                $assignedRoomNumberIds = array_slice($availableCategoryRoomNumbers, 0, $requestedRooms);
+
+                                $firstAssignedRoomNumber = self::$RoomNumbers->where('id', $assignedRoomNumberIds[0])->first();
+                                if($firstAssignedRoomNumber){
+                                    $assignedRoom = self::$Rooms->where('id', $firstAssignedRoomNumber->room_id)->first();
+                                    $assignedRoomPrice = self::$RoomPrices
+                                        ->where('status', 1)
+                                        ->where('hotel_id', $roomRow->hotel_id)
+                                        ->where('room_id', $assignedRoom->id)
+                                        ->orderBy('price', 'ASC')
+                                        ->first();
+                                }
+                            }
+                        }
+
+                        if(empty($assignedRoomNumberIds) || !$assignedRoomPrice || !$assignedRoom){
+                            return response()->json(['success'=>false,'message' => 'Room Not Available'],200);
+                        }
+
+                        $roomPriceRow = $assignedRoomPrice;
+                        $roomRow = $assignedRoom;
+                        $roomNumberIdsForOrder = implode(',', $assignedRoomNumberIds);
+                        $roomAssignedByNumber = true;
+
+                        $request->merge([
+                            'room_id' => $roomRow->id,
+                            'room_price_id' => $roomPriceRow->id,
+                            'room_number_ids' => $roomNumberIdsForOrder
+                        ]);
+                    }
+
                     if(isset($roomRow->id)){
                         // check room already booked
                         $checkInDate = date('Y-m-d',strtotime($request->input('start_date')));
@@ -834,18 +950,24 @@ class APIController extends Controller{
 
                         $roomBooked = false;
                         $roomPrices = self::$RoomPrices->where('status', 1)->where('id',$request->input('room_price_id'))->orderBy('price', 'ASC')->get();
-                        if(count($roomPrices) > 0){
-                            foreach($roomPrices as $price){
-                                $roomBooked = true;
-                                if(isset($bookedRooms[$price->id])){
-                                    $booked = $bookedRooms[$price->id] ?? 0; // if not booked, default 0
-                                    $remaining = $price->no_of_rooms - $booked;
-                                    $requested = $request->input('rooms');
-                                    $roomBooked = $requested <= $remaining;
-                                }
-                            }
-                        }else{
+
+                        if($roomAssignedByNumber){
+                            // Already chosen specific room number(s) for assignment; bypass generic room price count check.
                             $roomBooked = true;
+                        } else {
+                            if(count($roomPrices) > 0){
+                                foreach($roomPrices as $price){
+                                    $roomBooked = true;
+                                    if(isset($bookedRooms[$price->id])){
+                                        $booked = $bookedRooms[$price->id] ?? 0; // if not booked, default 0
+                                        $remaining = $price->no_of_rooms - $booked;
+                                        $requested = $request->input('rooms');
+                                        $roomBooked = $requested <= $remaining;
+                                    }
+                                }
+                            }else{
+                                $roomBooked = true;
+                            }
                         }
 
 
@@ -907,8 +1029,10 @@ class APIController extends Controller{
                             }
 
                             $setOrderData['invoice_id'] = date('Y').'/'.date('m').'/N'.$inc_no;
+
 			                $setOrderData['in_no'] = $inc_no;
                             $setOrderData['user_id'] = $userID;
+                            $setOrderData['vendor_id'] = $hotelRow->vendor_id;
                             $setOrderData['hotel_id'] = $roomRow->hotel_id;
                             $setOrderData['room_id'] = $request->input('room_id');
                             $setOrderData['room_price_id'] = $request->input('room_price_id');
@@ -919,6 +1043,7 @@ class APIController extends Controller{
                             $setOrderData['extra_mattress'] = $request->input('extra_mattress');
                             $setOrderData['extra_mattress_price'] = $extraMattressPrice;
                             $setOrderData['room_price'] = $roomPrice;
+                            $setOrderData['room_number_ids'] = $roomNumberIdsForOrder;
                             $setOrderData['sub_total'] = $subTotal;
                             $setOrderData['grand_total'] = $grandTotal;
                             $setOrderData['billing_name'] = $request->input('user_name');
