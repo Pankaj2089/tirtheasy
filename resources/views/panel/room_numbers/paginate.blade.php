@@ -14,7 +14,7 @@ $siteUrl = env('APP_URL');
     }
    @endphp
     <tr>
-        <td>{{$sr}}.</td>
+        <td><input type="checkbox" class="room-number-checkbox" value="{{$row->id}}" /> {{$sr}}.</td>
         <td>{{$row->prefix}}</td>
         <td>{{$row->title}}</td>
         <td>{{$row->full_title}}</td>
@@ -42,9 +42,9 @@ $siteUrl = env('APP_URL');
     @endforeach
     @else
     <tr>
-        <td align="center" colspan="6">Record not found</td>
+        <td align="center" colspan="7">Record not found</td>
     </tr>
     @endif
     <tr>
-        <td align="center" colspan="10"><div id="pagination">{!! $records->links('pagination.front') !!}</div></td>
+        <td align="center" colspan="7"><div id="pagination">{!! $records->links('pagination.front') !!}</div></td>
     </tr>

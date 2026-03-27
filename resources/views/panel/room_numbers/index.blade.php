@@ -27,12 +27,19 @@
             </div>
               <!-- Basic Bootstrap Table -->
               <div class="card">
-                <h5 class="card-header">Rooms Numbers - <i style="color:var(--bs-primary); font-weight:600">({{$roomData->title}})</i> <a href="{{ url('/panel/add-room-number/'.$room_id) }}" style="float:right; color:#FFF" class="btn btn-success waves-effect waves-light">Add</a></h5>
+                <h5 class="card-header">
+                    Rooms Numbers - <i style="color:var(--bs-primary); font-weight:600">({{$roomData->title}})</i>
+                    <div style="float:right;">
+                        <a href="{{ url('/panel/add-room-number/'.$room_id) }}" class="btn btn-success waves-effect waves-light">Add</a>
+                        <a href="javascript:void(0);" onclick="deleteSelectedRoomNumbers();" class="btn btn-danger waves-effect waves-light ms-2">Delete Selected</a>
+                    </div>
+                </h5>
                 
                 <div class="table-responsive text-nowrap">
                   <table class="table">
                     <thead>
                       <tr>
+                        <th><input type="checkbox" id="selectAllRooms" onclick="toggleSelectAllRoomNumbers(this)"></th>
                         <th>#ID</th>
                         <th>Prefix</th>
                         <th>Room Number</th>
@@ -59,6 +66,51 @@
             filterData('simple');
         });
         
+        function toggleSelectAllRoomNumbers(source){
+            $('.room-number-checkbox').prop('checked', source.checked);
+        }
+
+        function deleteSelectedRoomNumbers(){
+            var selected = [];
+            $('.room-number-checkbox:checked').each(function(){
+                selected.push($(this).val());
+            });
+            if(selected.length == 0){
+                swal('Oops!', 'Please select at least one room number.', 'warning');
+                return;
+            }
+            swal({
+                title: 'Are you sure?',
+                text: 'Once deleted, you will not be able to recover these records!',
+                icon: 'warning',
+                buttons: true,
+                dangerMode: true,
+            }).then((willDelete) => {
+                if(willDelete){
+                    $.ajax({
+                        headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                        type: 'POST',
+                        url: "{{ url('/panel/delete-record-multiple') }}",
+                        data: {table: 'room_numbers', rowIDs: selected},
+                        success: function(msg){
+                            if(msg == 'Success'){
+                                swal({
+                                    title: 'Success',
+                                    text: 'Selected records have been deleted successfully.',
+                                    icon: 'success',
+                                });
+                                filterData('simple');
+                            }else{
+                                swal('Oops!', msg, 'error');
+                            }
+                        }
+                    });
+                } else {
+                    swal('Your records are safe!');
+                }
+            });
+        }
+
         function filterData(type = null){
             if(type =='search'){$('#searchbuttons').html('Searching..');}
             $.ajax({

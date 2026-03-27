@@ -77,8 +77,7 @@ Route::prefix('panel')->group(function(){
 	Route::post('/change-status',[AjaxController::class, 'changeStatus'])->name('admin.change-status');
 	Route::post('/change-browse-top-status',[AjaxController::class, 'changeBrowseTopStatus'])->name('admin.change-browse-top-status');
 	Route::post('/change-popular-post-status',[AjaxController::class, 'changePopularPostStatus'])->name('admin.change-popular-post-status');
-    Route::post('/delete-record',[AjaxController::class, 'deleteRecord'])->name('admin.delete-record');
-    Route::post('/get-cities',[AjaxController::class, 'getCities'])->name('admin.get-cities');
+    Route::post('/delete-record',[AjaxController::class, 'deleteRecord'])->name('admin.delete-record');	Route::post('/delete-record-multiple',[AjaxController::class, 'deleteRecords'])->name('admin.delete-record-multiple');    Route::post('/get-cities',[AjaxController::class, 'getCities'])->name('admin.get-cities');
     Route::post('/upload_image',[AjaxController::class, 'uploadImage'])->name('admin.upload_image');
 	
 	#brands

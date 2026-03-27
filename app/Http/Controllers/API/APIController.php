@@ -1110,6 +1110,27 @@ class APIController extends Controller{
             $setOrderData['txn_id'] = $request->razorpay_payment_id;
             $setOrderData['id'] = $request->o_id;
             $orderData = self::$Orders->UpdateRecord($setOrderData);
+
+            // Create order payment record
+            $order = self::$Orders->where('id', $request->o_id)->first();
+            $paymentAmount = 0;
+            if($order && isset($order->grand_total)){
+                $paymentAmount = floatval($order->grand_total);
+            }
+            try {
+                DB::table('order_payments')->insert([
+                    'order_id' => $request->o_id,
+                    'type' => 'Payment',
+                    'payment_type' => 'Online',
+                    'payment_method' => 'Net Banking',
+                    'amount' => $paymentAmount,
+                    'comment' => 'Pay with Rozarpay',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            } catch (\Exception $e) {
+                // Let order continue; if table missing or constraint failed, ignore here.
+            }
         }
 
         // Get the payment ID from the front-end (POST request)

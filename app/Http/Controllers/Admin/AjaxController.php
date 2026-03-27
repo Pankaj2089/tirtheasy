@@ -163,6 +163,22 @@ class AjaxController extends Controller
 			echo 'InvalidData'; die;
 		}
     }
+
+    public function deleteRecords(Request $request){
+		if(!$request->session()->has('admin_email')){echo 'SessionExpire'; die;}
+		$tableName = $request->input('table');
+		$rowIDs = $request->input('rowIDs');
+		if($tableName != '' && is_array($rowIDs) && count($rowIDs) > 0){
+			foreach($rowIDs as $id){
+				if(is_numeric($id)){
+					DB::table($tableName)->where(array('id' => $id))->update(array('status' => 3));
+				}
+			}
+			echo 'Success';die;
+		}else{
+			echo 'InvalidData'; die;
+		}
+    }
     public function productsChangeStatus(Request $request){
 		if(!$request->session()->has('admin_email')){echo 'SessionExpire'; die;}
 		$productIDs = $request->input('productIDs');
